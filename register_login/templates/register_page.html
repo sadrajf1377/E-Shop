@@ -1,0 +1,44 @@
+{% extends 'base_layout.html' %}
+{% block title %} ورود کاربر {% endblock %}
+{% block custom_style_override %} {% endblock %}
+{% block content_title %} ثبت نام {% endblock %}
+{% block main_content %}
+    <style>
+     b[class="error_message"]
+     {
+         list-style-type: none;
+         color: red;
+
+
+     }
+     ul{list-style: none;}
+    </style>
+<div class="center-align" style="background-color: lightgrey;box-shadow: 10px 10px 10px lightgrey;width: fit-content;margin: auto">
+    <form style="margin: auto" method="post" action="{% url 'register_user' %}">
+    {% csrf_token %}
+
+{% for field in register_form %}
+<p style="margin-right: 0">
+{{ field.label }}:
+    </p>
+    
+    {{ field }}
+  {% if field.errors %}
+
+  <b class="error_message"  >
+
+  {{ field.errors }}
+  </b>
+
+    {% endif %}
+
+{% endfor %}
+    <button type="submit" style="background-color: #a0cc4b;color: whitesmoke;height:50px;width: 100px;border: white 2px solid" >
+
+        ثبت نام
+
+
+    </button>
+    </form>
+</div>
+{% endblock %}

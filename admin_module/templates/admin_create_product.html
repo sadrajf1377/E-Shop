@@ -1,0 +1,222 @@
+{% extends 'admin_page_index.html' %}
+{% block title %} اضافه کردن محصول جدید {% endblock %}
+{% block main_content %}
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <style>
+    form#product_form
+    {
+        width:30vw; margin-right: 0vw;float: right;box-shadow: inset 0 0 5px lightgray; position: relative;height: fit-content;
+    }
+    form#product_form>ul>li
+    {
+        width: 95%;
+    }
+    form#product_form>ul>li>input
+    {
+        width: 100%;
+    }
+    form#product_form>ul>li>textarea
+    {
+        width: 100%;
+    }
+    label#pr_images_label:hover
+    {
+        cursor: pointer;
+
+    }
+    li
+    {
+        margin-right: 2%;
+        margin-top:2% ;
+
+
+    }
+
+    li:nth-child(3n) + li
+{
+    clear:both;
+}
+    img[class="remove_button"]
+    {
+        position:relative;right: -15%;top:-5%;height:25px;width: 25px;z-index: 10
+    }
+    img[class="remove_button"]:hover~p
+    {
+       display:block;
+    }
+   textarea
+   {
+       resize: none;
+   }
+    </style>
+<script>
+var product_images=[];
+
+var mouse_img=document.getElementById('mouse_image');
+
+  function remove_photo(element)
+  {
+     for(let i=0;i<product_images.length;i++){if(product_images[i].name==element.id)
+     {
+         product_images.splice(i,1);
+         break;
+     }}
+      element.parentElement.remove();
+     console.log(product_images);
+  }
+  function add_new(type,val)
+  {
+      $.get('{% url 'add-color-brand-category_ajax'   %}'+'?model='+type+'&title='+val).then(res=>{
+      if(type!='color')
+      {
+          var doc=document.getElementById('id_'+type);
+     doc.innerHTML+=`<option value="${res.id}">  ${val} </option>`;
+      }
+      else
+      {
+        add_product_color(res.id,0,val);
+      }
+      });
+      }
+
+
+  function add_image(element1)
+  {
+    var doc=document.getElementById('images');
+
+    var files_list=element1.files;
+    for(const file of files_list)
+    {
+        product_images.push(file);
+
+    }
+
+
+    for(let i=0;i<files_list.length;i++)
+    {
+        var url=URL.createObjectURL(files_list[i]);
+        var file_name=files_list[i].name;
+        var element=`<div style="list-style: none; height:80px;width:80px; float: right;border: 1px;margin-right: 4%;
+box-shadow:3px 3px 3px;">
+
+
+<img src="${url}" style="height:100%;width:100%;">
+<img  src="/static/images/rejected.png" class="remove_button" onclick="remove_photo(this)" id=${file_name} >
+<p style="position:relative;right: -100%;bottom:155%;z-index: 10;background-color:lightgrey;border-radius: 10%;" hidden  > حذف عکس</p>
+</div>`;
+
+        doc.innerHTML+=element;
+    }
+
+  }
+
+    function remove_category_brand_color(type)
+    {
+        switch (type)
+        {
+            case 'category':
+            {
+              var doc_list=document.getElementById('id_category');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+            }break;
+            case 'brand':
+            {
+              var doc_list=document.getElementById('id_brand');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+            }break;
+            case 'color':
+            {
+                var doc_list=document.getElementById('id_color');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+
+            }break;
+
+        }
+    }
+    document.getElementById('category_options').innerHTML+=`<button  onclick="remove_category_brand_color('category');">حذف دسته بندی انتخاب شده</button>`;
+    document.getElementById('brand_options').innerHTML+=`<button onclick="remove_category_brand_color('brand');">حذف برند انتخاب شده</button>`;
+    function finalize_photos()
+    {
+        var final_photos=document.getElementById('pr_final_photos');
+        var files=new DataTransfer();
+
+        for(const image of product_images)
+        {
+            files.items.add(image);
+        }
+        final_photos.files=files.files;
+        console.log(final_photos.files);
+    }
+
+</script>
+
+<form  enctype="multipart/form-data" action="{% url 'create-product' %}" method="post" id="product_form">
+<ul id="form_lis">
+{% csrf_token %}
+    {% for field in fields %}
+        <li style="list-style-type: none" id="{{ field.name }}_options">
+    {{ field.label }}:
+            <br>
+        {{ field }}
+
+        </li>
+    {% endfor %}
+
+
+<input type="file" name="img"  onchange="add_image(this)" multiple style="display: none" id="pr_imgs" accept="image/jpeg">
+
+<li style="background-color: #3FB8AF;height: fit-content" id="images" >
+<label for="pr_imgs" id="pr_images_label" ><p>تصاویر محصول:</p></label>
+<br>
+
+</li>
+<br>
+<li style="height: fit-content;width: fit-content;margin-top: 5%">
+<button style="font-size: calc(1vw + 1vh);border:2px whitesmoke ;border-radius: 5%;background-color: lightgreen;color: whitesmoke;
+                ;width:10vw;height: 5vh;"
+   onclick="finalize_photos()">
+    ثبت محصول
+</button>
+</li>
+<input type="file" multiple  id="pr_final_photos" name="pr_imgs_final" style="display: none" >
+
+</ul>
+</form>
+
+
+<div style="float: right;margin-right: 3vw">
+
+    <br>
+<a href="{% url 'add_brand_color_category_new' 'color' %}" target="ChildWindow" > رنگ جدید</a>
+    <br>
+<a href="{% url 'add_brand_color_category_new' 'category' %}" target="ChildWindow"> دسته بندی جدید</a>
+    <br>
+   <a href="{% url 'add_brand_color_category_new' 'brand' %}" target="ChildWindow"> برند جدید</a>
+    <br>
+
+</div>
+
+
+{% endblock %}

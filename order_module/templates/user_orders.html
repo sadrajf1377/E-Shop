@@ -1,0 +1,39 @@
+{% extends 'base_layout.html' %}
+
+
+{% block main_content %}
+{% for order in orders %}
+   <div style="height: fit-content;width: fit-content;background-color: grey;box-shadow: 2px 2px 2px grey">
+      <div style="background-color: silver">
+          شماره سفارش:
+          <br>
+          {{ order.order_number }}
+          <br>
+          تاریخ سفارش:
+          <br>
+          {{ order.order_date }}
+          <br>
+      قیمت:
+      <br>
+      {{ order.total_price }}
+          <br>
+          {% for detail in order.order_detail_set.all %}
+               نام محصول:{{ detail.product.title }}
+              <hr>
+              تعداد:{{ detail.count }}
+              <br>
+              {{ detail.product.thumbnail_photo }}
+              {% endfor %}
+      </div>
+
+   </div>
+
+    {% endfor %}
+    <div style="position: absolute;bottom: -5%;right: 50%">
+    sdsd
+    {% for number in paginator.page_range %}
+    {{ number }}/
+     {{ paginator.next }}
+    {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends 'admin_page_index.html' %}
+{% block title %} ویرایش محصول {% endblock %}
+{% block main_content %}
+    <script>
+
+    let index=0;
+    var image_urls=[];
+    var photos_to_delete=[];
+    var img_ids=[];
+
+    var new_images=[];
+    var product_colors=[];
+    var product_colors_initial=[];
+    function add_product_color(color_id,color_amount,color_color)
+    {
+    //colors_parent
+        var doc =document.getElementById('colors_parent');
+        var element=`<li style="width: 100%;height: 10px;list-style: none;margin-top:5px;justify-self: right">
+            <p style="float: right"> ${color_color}</p>
+            <input id="${color_id}" value="${color_amount}" type="number" style="width: 40px;height: 30px;float: right" name="colors" onchange="change_left_amount(this)">
+            </li>
+            <br>`;
+       doc.innerHTML+=element;
+        product_colors.push([color_id,color_amount]);
+        product_colors_initial.push([color_id,color_amount]);
+    }
+    function change_image(value)
+    {
+
+        if(index+value<image_urls.length&&index+value>=0) {
+            index += value;
+            var cur_image = document.getElementById("currentpic");
+            cur_image.src = image_urls[index][0];
+        }
+    }
+    function add_image_url(url,id,file)
+    {
+
+
+       if(id!='null' &&file==='null') {
+
+            img_ids.push(id);
+    }
+
+
+        image_urls.push([url,id,file]);
+
+
+        }
+
+        function set_first_picture() {
+            var cur_image = document.getElementById("currentpic");
+            cur_image.src = image_urls[index][0];
+        }
+       function add_new(type,val)
+  {
+
+      $.get('{% url 'add-color-brand-category_ajax'   %}'+'?model='+type+'&title='+val).then(res=>{
+      if(type!='color')
+      {
+          var doc=document.getElementById('id_'+type);
+     doc.innerHTML+=`<option value="${res.id}">  ${val} </option>`;
+      }
+      else
+      {
+       add_product_color(res.id,0,val);
+      }
+      });
+      }
+
+        function delete_photo() {
+
+            if (image_urls[index][1]!='null') {
+                photos_to_delete.push(img_ids[index]);
+                img_ids.splice(index, 1);
+            } else {
+
+               var index1= new_images.indexOf(image_urls[index][2]);
+                new_images.splice(index1,1);
+
+
+            }
+            image_urls.splice(index, 1);
+
+
+            index = 0;
+
+
+            var cur_image = document.getElementById("currentpic");
+            cur_image.src = image_urls[index][0];
+
+
+        }
+
+        function add_new_photos(element) {
+
+            for (let i = 0; i < element.files.length; i++) {
+                var url = URL.createObjectURL(element.files[i]);
+                add_image_url(url, 'null', element.files[i]);
+
+                var myFile=element.files[i];
+
+
+                console.log(myFile);
+                new_images.push(myFile);
+
+            }
+
+            index = image_urls.length - 1;
+            var cur_image = document.getElementById("currentpic");
+            cur_image.src = image_urls[index][0];
+
+
+
+    }
+ function set_final_photos()
+ {
+      const imgs_to_add_doc=document.getElementById('photos_to_add');
+      const images_to_delete_doc=doc=document.getElementById('photos_to_delete');
+      let files_List=new DataTransfer();
+     for(let i=0;i<new_images.length;i++)
+     {
+        files_List.items.add(new_images[i]);
+     }
+     for (const id of photos_to_delete)
+     {
+        images_to_delete_doc.value+=id.toString();
+     }
+     imgs_to_add_doc.files=files_List.files;
+
+
+ }
+
+ function change_left_amount(element)
+ {
+
+    var color_to_change='';
+
+    for(let i=0;i<product_colors.length;i++){if(product_colors[i][0]===element.id){
+
+        color_to_change=product_colors[i];break;}}
+    color_to_change[1]=element.value;
+    console.log(color_to_change);
+ }
+ function finalize_colors_amount()
+ {
+     var doc=document.getElementById('colors_to_change');
+   for(let i=0;i<product_colors.length;i++)
+   {
+    if(product_colors[i][1]!=product_colors_initial[i][1])
+    {
+        doc.value+=product_colors[i].toString()+',';
+    }
+
+   }
+   console.log(doc.value);
+ }
+
+</script>
+    <style>
+    p:hover
+    {
+        color: grey;
+        cursor: pointer;
+    }
+
+    form#product_form>div.form_field
+    {
+        width:25vw;
+    }
+
+     form#product_form>div.form_field>input
+    {
+        width: 100%;
+    }
+      form#product_form>div.form_field>textarea
+    {
+        width: 100%;
+    }
+    textarea
+    {
+        resize: none;
+    }
+    </style>
+
+
+<form
+       action="{% url 'edit-product' pk=product.id %} " method="post" enctype="multipart/form-data" id="product_form">
+{% csrf_token %}
+    {% for field in form %}
+        {% if field.name == "category" %}
+            رنگ های محصول:
+            <br>
+            <ul style="height: 80px;width:fit-content;overflow-y: scroll;overflow-x: hidden;background-color: whitesmoke;margin-right: 1%;border: 1px black
+               solid" id="colors_parent">
+        {% for color in colors %}
+            <script>
+            add_product_color('{{ color.id }}','{{ color.amount_left }}','{{ color.color }}');
+            </script>
+            {% endfor %}
+            </ul>
+
+
+        {% endif %}
+        <div style="margin-right: 1%" class="form_field">
+        {{ field.label }}:
+
+        {{ field }}
+
+        </div>
+    {% endfor %}
+<input name="colors_to_change" style="display: none" id="colors_to_change">
+<br>
+<p style="float: right;margin-right: 7%" onclick="change_image(1)">
+    بعدی
+</p>
+<img id="currentpic" style="height: 25vh;width: 25vw;float: right;margin-right: 7%">
+<p style="float: right;margin-right: 7%"onclick="change_image(-1)">
+    قبلی
+</p>
+<br>
+<br>
+<p style="position: relative;left: -1%" onclick="delete_photo()">
+      حذف این عکس
+</p>
+
+<label for="files" style="position: relative;bottom: -10px;right: 10px">
+  <p>
+       افزودن تصاویر جدید
+  </p>
+</label>
+<input type="file" multiple id="files" style="visibility: hidden;" onchange="add_new_photos(this)" name="new_files" hidden >
+
+
+<button style="border:2px whitesmoke ;border-radius: 20%;margin-right: 20px;margin-top: 5%
+;background-color: lightgreen;color: whitesmoke;margin-right: 35%"  onclick="finalize_colors_amount();set_final_photos()">
+    ثبت تغییرات
+</button>
+{% for image in product.images_set.all %}
+<script>
+add_image_url('{{ image.picture.url }}','{{ image.id }}','null')
+</script>
+
+{% endfor %}
+<script>
+    set_first_picture();
+
+
+</script>
+
+<input type="file" multiple id="photos_to_add" style="display: none" name="photos_to_add">
+<input type="text" id="photos_to_delete" name="photos_to_delete" hidden="">
+</form>
+<script>
+     function remove_category_brand_color(type)
+    {
+        switch (type)
+        {
+            case 'category':
+            {
+              var doc_list=document.getElementById('id_category');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+            }break;
+            case 'brand':
+            {
+              var doc_list=document.getElementById('id_brand');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+            }break;
+            case 'color':
+            {
+                var doc_list=document.getElementById('id_color');
+                for(const option of doc_list.options)
+                {
+                   if(option.selected)
+                 {
+                $.get('{% url 'remove-color-brand-category_ajax'  %}'+'?type='+type+'&id='+option.value).then(res=>{});
+                option.remove();
+                 }
+              }
+
+            }break;
+
+        }
+    }
+
+    function open_new_window(url)
+    {
+    window.open(url, 'ChildWindow', 'width=fit-content,height=fit-content');
+    }
+</script>
+    <div style="float: right;margin-right: 5%">
+<br>
+<a href="{% url 'add_brand_color_category_new' 'color' %}" target="ChildWindow"  > رنگ جدید</a>
+    <br>
+<a href="{% url 'add_brand_color_category_new' 'category' %}" target="ChildWindow"> دسته بندی جدید</a>
+    <br>
+   <a href="{% url 'add_brand_color_category_new' 'brand' %}" target="ChildWindow"> برند جدید</a>
+    <br>
+</div>
+
+{% endblock %}

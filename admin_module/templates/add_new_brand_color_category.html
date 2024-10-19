@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+<script>
+    function add_new_item()
+    {
+    var value=document.getElementById('to_add').value;
+    console.log(value);
+    console.log(window.opener);
+    if (window.opener && typeof window.opener.add_new === 'function') {
+                window.opener.add_new('{{ model_type }}',value);
+            } else {
+                alert("Could not call parent function");
+            }
+    }
+</script>
+<form   style="background-color:white;position: absolute;right:35%;top:35%">
+
+
+{% for field in form %}
+{{ field.label }}:
+    <br>
+    {{ field }}
+    <br>
+
+
+{% endfor %}
+<script>
+      document.querySelectorAll('input')[0].id='to_add';
+</script>
+<button style="background-color: #a0cc4b;border: none;color: white" type="submit" onclick="add_new_item()">
+    افزودن {{ title  }} جدید
+</button>
+</form>
+</body>
+</html>

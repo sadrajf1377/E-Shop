@@ -1,0 +1,42 @@
+{% extends 'base_layout.html' %}
+
+
+{% block title %}ورود {% endblock %}
+{% block content_title %} ورود به حساب {% endblock %}
+{% block main_content %}
+<div class="container" style="background-color: lightgrey;box-shadow: 10px 10px 10px lightgrey;border: 0.5px solid grey;width: fit-content">
+<form method="post" action="{% url 'login-user' %}" style="">
+{% csrf_token %}
+    <p style="width: fit-content;margin-right: 1%">
+ایمیل یا نام کاربری:
+        </p>
+
+<input type="text" name="email_username" label="ایمیل" value="" style="width: 70%;margin-right: 10%">
+
+    <p style="width: fit-content;margin-right: 1%">
+    پسوورد:
+        </p>
+
+<input type="password" name="password" label="کلمه عبور" value="" style="width: 70%;margin-right: 10%">
+    <br>
+<b style="color: red;margin-left:80px">
+    {{ error }}
+    </b>
+    <br>
+
+
+<button type="submit" style="background-color: #a0cc4b;color: white;height:50px;width: 100px;border: white 2px solid;margin-right:26%">
+    ورود به اکانت
+</button>
+<br>
+
+
+</form>
+    <div style="text-align: center">
+برای ثبت نام <a href="{% url 'register_user' %}"> اینجا </a> کلیک کنید
+    </div>
+<div style="text-align: center">
+در صورت فراموشی رمز عبور <a href="{% url 'ask_for_password_reset' %}"> اینجا </a> کلیک کنید
+    </div>
+</div>
+{% endblock %}

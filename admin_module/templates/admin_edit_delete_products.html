@@ -1,0 +1,57 @@
+{% extends 'admin_page_index.html' %}
+
+
+{% block title %}
+محصولات
+{% endblock %}
+{% block main_content %}
+    {% load polls_extra %}
+<table style="margin-right: 0vw">
+    <tr>
+        <td>
+            نام محصول
+        </td>
+        <td>
+            قیمت محصول
+        </td>
+        <td>
+            موجودی محصول
+        </td>
+    </tr>
+    <td>
+        {% for product in products %}
+        <tr>
+        <td>
+            {{ product.title }}
+        </td>
+        <td>
+            {{ product.price|three_digits_currensy }}
+        </td>
+        <td>
+            {{ product.is_active }}
+        </td>
+        <td>
+            <a href="{% url 'edit-product' pk=product.id%}">
+                ویرایش محصول
+            </a>
+        </td>
+        <td>
+            <form action="{% url 'remove_prdouct' product.id %}" method="post">
+                {% csrf_token %}
+            <button style="border: none;background-color:lightblue;color:deepskyblue;margin-top:0;height:3px;width:fit-content">
+                حذف محصول
+            </button>
+                </form>
+        </td>
+        </tr>
+        {% endfor %}
+    </td>
+    {% for number in paginator.page_range %}
+        <a href="?page={{ number }}">
+        {{ number }}
+        </a>
+      {% endfor %}
+
+
+</table>
+{% endblock %}

@@ -1,0 +1,461 @@
+{% extends 'base_layout.html' %}
+{% load polls_extra %}
+{% block title %}{{ product.title }} {% endblock %}
+{% load thumbnail %}
+{% block content_title %}{{ product.title }} {% endblock %}
+
+{% block main_content %}
+
+<style>
+ div.cropped~img
+ {
+
+ }
+ .my_custom_comment
+ {
+     box-shadow: 5px 5px 5px lightgreen;border-radius: 10%;text-shadow:lightgreen;list-style: none;
+     height: fit-content;width: fit-content;background-color: lightgreen;color: green;font-family:'B Nazanin';
+ }
+
+</style>
+
+    <script>
+    var result_detail_id;
+    var productid;
+    var basket_thumbnail_url='';
+    var selected_color='',selected_color_html='';
+
+    function change_active_picture(url)
+    {
+      document.getElementById("mainPreviewImg").src=url;
+
+    }
+    function say_hi()
+    {
+        console.log('hi');
+    }
+    function add_to_basket()
+    {
+        var check_if_ordered=document.getElementById('product{{ product.id }}detail')!=null;
+
+
+        var price_val='sdsds';
+        let count_val=0;
+        count_val=document.getElementById('num').value;
+
+        $.get('{% url 'addproduct' %}'+'?prid='+'{{ product.id }}'+'&count='+count_val+'&color_id='+selected_color).then(res=>{
+            if(res.status==='failed'){alert('موجودی این محصول کمتر از مقدار انتخابی شماست'); return;}
+            res.pricevl;count_val=res.countvl;
+            price_val=res.pricevl;
+            var total_price=document.getElementById('total_price');
+
+            if(!check_if_ordered)
+        {
+        var parent=document.getElementById('items_container');
+        productid='{{ product.id }}';
+        result_detail_id=res.detailid;
+
+
+
+        parent.innerHTML+=`<div class="item-in-cart clearfix" id="product{{ product.id }}detail">
+                            <div class="image">+
+                                <img src=${basket_thumbnail_url} width="124" height="124" alt="cart item" />
+                            </div>
+                            <div class="desc">
+                                <strong><a href="product.html">{{ product.title }}</a></strong>
+                                <ul class="light-clr qty"  style="white-space: nowrap;">
+                                    <li style="display: inline-block" id="{{ product.id }}count"> تعداد : </li>
+                                    <li style="display: inline-block"> ${count_val} </li>
+
+                                    <li style="display: inline-block"> رنگ : </li>
+                                    <li style="display: inline-block;background-color:${selected_color_html};height: 10px;width: 20px"></li>
+                                    <li style="display: inline-block;float: left"><a href="#" class="icon-remove-sign"
+                                     title="Remove Item" onclick="remove_item(${res.detailid},'{{ product.id }}')"></a></li>
+                                </ul>
+                            </div>
+                            <div class="price">
+                                <strong id="{{ product.id }}price">تومان ${price_val}</strong>
+                            </div>
+                        </div>`
+        ;
+                                var total_count=document.getElementById('count');
+            total_count.innerText=(total_count.innerText!=''?parseInt(total_count.innerText)+1:'1').toString();
+            console.log(document.getElementById('product{{ product.id }}detail'))
+    }
+        else
+        {
+           console.log('exists');
+            var price_field=document.getElementById('{{ product.id }}price');
+        var count_field=document.getElementById('{{ product.id }}count');
+
+            price_field.innerHTML='قیمت :'+price_val.toString();
+            count_field.innerHTML='تعداد :'+count_val.toString();
+
+
+        }
+
+        total_price.innerText=res.total_price;
+        });
+
+
+    }
+    function add_product_to_wish_list(element)
+    {
+         $.get('{% url 'add_user_to_wishlist' %}'+'?user-id='+'{{ user.id }}'+'&product-title='+'{{ product.title }}').then(res=>
+         {
+
+             switch (res.st)
+             {
+                 case 'remove':{element.querySelector('img').remove();}break;
+                 case 'add':{element.innerHTML+='<img style="position:relative;left:-2%;height: 20px;width: 20px" src="/static/images/bell.png">';}break;
+             }
+             alert(res.message);
+         });
+    }
+
+</script>
+    <!--  ==========  -->
+    <!--  = Main container =  -->
+    <!--  ==========  -->
+    <div class="container" style="overflow: visible">
+        <div class="push-up top-equal blocks-spacer">
+
+            <!--  ==========  -->
+            <!--  = Product =  -->
+            <!--  ==========  -->
+            <div class="row blocks-spacer">
+
+                <!--  ==========  -->
+                <!--  = Preview Images =  -->
+                <!--  ==========  -->
+                <div class="span5">
+                    <div class="product-preview">
+                        <div class="picture">
+                            {% thumbnail product.thumbnail_photo "450x450" crop="center"  as thumbn %}
+                            <img src="{{ thumbn.url }}" alt="" width="1200" height="1200" id="mainPreviewImg" style="margin-top: 10px"/>
+                                <script>
+                                basket_thumbnail_url='{{ thumbn.url }}';
+                                </script>
+                               {% endthumbnail %}
+                        </div>
+                        <div class="thumbs clearfix">
+
+                            {% for picture in product.product_images %}
+                            <div class="thumb">
+
+                                          {% thumbnail picture.picture "450x450" crop="center"  as thumb %}
+    	            	        	    <a  onclick="change_active_picture(this.id);" id="{{ thumb.url }}"><img src="{{ thumb.url }}" alt="" width="800" height="800" /></a>
+
+                                        {% endthumbnail %}
+
+
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!--  ==========  -->
+                <!--  = Title and short desc =  -->
+                <!--  ==========  -->
+                <div class="span7">
+                    <div class="product-title">
+                        <h1 class="name" style="margin-top: 40px" ><span class="light">{{ product.title }}</span></h1>
+                        <div class="meta">
+                            <span class="tag">{{ product.price }} تومان</span>
+                            <span class="stock">
+
+
+
+
+                                {% if product.get_avalible_colors.count > 0 %}
+                                <span class="btn btn-success">موجود</span>
+                                    {% else %}
+                                <span class="btn btn-danger" >اتمام موجودی</span>
+                                    {% if product.product_wish_list != None and product|check_if_product_is_favoured:user.id %}
+                               <span class="btn" style="background-color: orangered" onclick="add_product_to_wish_list(this)">موجود شد به من اطلاع بده!
+                               <img style="position:relative;left:-2%;height: 20px;width: 20px" src="/static/images/bell.png">
+                               </span>
+                                        {% else %}
+                                        <span class="btn" style="background-color: orangered" onclick="add_product_to_wish_list(this)">موجود شد به من اطلاع بده!
+                                        </span>
+                                        {% endif %}
+                                {% endif %}
+{#                                <span class="btn btn-warning">تماس بگیرید</span>#}
+
+                            </span>
+                        </div>
+                    </div>
+                    <div class="product-description">
+
+                        <hr />
+
+                        <!--  ==========  -->
+                        <!--  = Add to cart form =  -->
+                        <!--  ==========  -->
+                    <script>
+                        let amount=1;
+                        function add_to_amount(value)
+                        {
+                            amount+=value;
+                            if(amount<=10 && amount>=1) {
+                                document.getElementById("num").value = amount;
+                            }
+
+
+                        }
+                    </script>
+                    {% if product.get_avalible_colors.count > 0 and user.is_authenticated %}
+                        <form action="#" class="form form-inline clearfix">
+                            <div class="numbered">
+                            	<input type="number"  value="1" style="width: 20px;height: 10px" id="num"  />
+                            	<span class="clickable add-one icon-plus-sign-alt" onclick="add_to_amount(+1);"></span>
+                            	<span class="clickable remove-one icon-minus-sign-alt" onclick="add_to_amount(-1);"></span>
+                            </div>
+                            &nbsp;
+                            <select name="color" class="span2"  onchange="
+                            if
+                             (this.value!='-1'){
+                                 selected_color=this.value;
+                                 for(let i=0;i<this.children.length;i++){
+                                     if(this.children[i].id===this.value){
+                                         selected_color_html=this.children[i].id;break;}
+                                 }
+
+                            console.log(selected_color_html)}
+                                ;">
+                                <option value="-1">انتخاب رنگ</option>
+                                {% for color in product.get_avalible_colors.all  %}
+                                    <script>console.log('{{ color.color_to_display}}')</script>
+                                <option value="{{ color.color.id }}" id="{{ color.color.id }}" name="{{ color.color_to_display }}">{{ color.color }}</option>
+                                {% endfor %}
+                            </select>
+
+
+                            <a class="btn btn-danger pull-right" onclick="add_to_basket()" ><i class="icon-shopping-cart" ></i> اضافه به سبد خرید</a>
+
+                        </form>
+                          {% endif %}
+                        <hr />
+
+
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!--  ==========  -->
+            <!--  = Tabs with more info =  -->
+            <!--  ==========  -->
+            <div class="row">
+                <div class="span12">
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#tab-1" data-toggle="tab">خلاصه توضیحات</a>
+                        </li>
+                         <li >
+                            <a href="#tab-2" data-toggle="tab">جزئیات</a>
+                        </li>
+                        <li>
+                            <a href="#tab-3" data-toggle="tab" id="comments">نظرات</a>
+                        </li>
+
+                    </ul>
+                    <div class="tab-content">
+                        <div class="fade in tab-pane active" id="tab-1">
+                            <h3>توضیحات محصول</h3>
+                         {{ product.short_description}}
+                        </div>
+                    <div class="fade in tab-pane" id="tab-2">
+                            <h3>توضیحات محصول</h3>
+                         {{ product.product_article.text|safe}}
+                        </div>
+<script>
+
+                             var comments=[];
+                             var page_comments=[];
+                             var result=[];
+                             function add_to_comments(user,comment)
+                             {
+                                 comments.push([user,comment]);
+
+                             }
+
+                             let index=0;
+                             function show_comments()
+                             {
+                                 var doc=document.getElementById('tab-3');
+                                 doc.innerHTML='';
+                                 for(let i=index;i<index+4;i++)
+                                 {
+
+                                     try
+                                      {
+                                         doc.innerHTML += '<div style="background-color: whitesmoke">' +
+                                             '<h2>' +
+                                             comments[i][0] +
+                                             '</h2>' +
+                                             '<h3>' +
+                                             comments[i][1] +
+                                             '</h3>' +
+                                             '</div>' + '<br>';
+                                     }
+
+                                     catch (err) {
+                                         break;
+                                     }
+                                 }
+                             doc.innerHTML+='<button onclick="change_range(1);"> بعدی</button>'+'<button onclick="change_range(-1);">قبلی </button>';
+
+                             }
+
+                             function change_range(value)
+                             {
+                                 if(value===1 && index+3<=comments.length){index+=3;}
+                                 else if(value===-1 && (index-3)>=0){index-=3;}
+                                 show_comments();
+                             }
+
+                         </script>
+
+                        <div class="fade tab-pane" id="tab-3">
+                        <li class="container" style="list-style: none">
+
+
+                            {% for comment in comments %}
+
+                                {% if comment.parent == None %}
+                                <ul class="my_custom_comment" >
+                                {{ comment.user }}
+                                    گفت:
+                                <br>
+                                {{ comment.comment_text }}
+                                <br>
+                                <a href="#comments"  onclick="change_comment_parent(this.parentElement,'add',' {{ comment.user }}','{{ comment.id }}')">
+                                    پاسخ
+                                </a>
+                                <br>
+                                </ul>
+                                    {% for com in comment.comment_set.all  %}
+                                     <li class="my_custom_comment" style="margin-right: 2%">
+                                     {{ com.user }}
+                                         در جواب
+                                         {{ comment.user }}
+                                         گفت:
+                                     <br>
+                                     {{ com.comment_text }}
+                                     </li>
+                                        <br>
+                                    {% endfor %}
+                                {% endif %}
+                             {% endfor %}
+                        <div class="pagination_section">
+                        {% for number in paginator.page_range  %}
+     <a href="?page={{ number }}" style="font-size: 1vw">
+       {{ number }}
+     </a> /
+    {% endfor %}
+    <br>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number}}" class="paginator_number">
+       بعدی
+     </a>
+    {% endif %}
+     {% if  page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number}}" class="paginator_number">
+       قبلی
+     </a>
+    {% endif %}
+                        </div>
+                        </div>
+
+
+                        </div>
+                        <div class="fade tab-pane" id="tab-4">
+                            <p>
+                                لورم ایپسوم متنی است که ساختگی برای طراحی و چاپ آن مورد است. صنعت چاپ زمانی لازم بود شرایطی شما باید فکر ثبت نام و طراحی، لازمه خروج می باشد. در ضمن قاعده همفکری ها جوابگوی سئوالات زیاد شاید باشد، آنچنان که لازم بود طراحی گرافیکی خوب بود. کتابهای زیادی شرایط سخت ، دشوار و کمی در سالهای دور لازم است. هدف از این نسخه فرهنگ پس از آن و دستاوردهای خوب شاید باشد. حروفچینی لازم در شرایط فعلی لازمه تکنولوژی بود که گذشته، حال و آینده را شامل گردد. سی و پنج درصد از طراحان در قرن پانزدهم میبایست پرینتر در ستون و سطر حروف لازم است، بلکه شناخت این ابزار گاه اساسا بدون هدف بود و سئوالهای زیادی در گذشته بوجود می آید، تنها لازمه آن بود...
+                            </p>
+                        </div>
+                    </div>
+                <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+                    <div class="span12">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div> <!-- /container -->
+    <form method="post" action="{% url 'send-comment' %}"
+          style="display: none;background-color:lightgreen;width: fit-content;height: fit-content" id="reply_form">
+    {% csrf_token %}
+    <p>
+        پاسخ به
+    </p>
+        <input type="text" name="redirect_url" class="redirect_url" style="display: none">
+        <input style="display: none" name="parent_id" value="">
+        <input style="display: none" name="product_id" value="{{ product.id }}" readonly>
+        <textarea  maxlength="100" name="comment_text"></textarea>
+    <button style="background-color: lightblue;color:white;border: none;border-radius: 10%;box-shadow: 2px 2px 2px lightgreen">
+        ثبت پاسخ
+    </button>
+
+    </form>
+<div class="container" style="height: fit-content;width: fit-content">
+
+ <form style="float: right" method="post" title="ارسال نظر" action="{% url 'send-comment' %}"  id="comment_form">
+ {% csrf_token %}
+
+<input type="text" style="display: none" name="product_id" value="{{ product.id }}">
+<ul>
+<input type="text" name="redirect_url" class="redirect_url" style="display: none">
+<script>
+    for(const el of document.getElementsByClassName('redirect_url'))
+    el.value=window.location.href;
+
+
+</script>
+{% for field in comments_form %}
+    <li style="list-style: none">
+
+{{ field.label }}
+    {{ field }}
+    </li>
+
+{% endfor %}
+</ul>
+  <ul>
+<button style="color: #a0cc4b" >
+    ثبت نظر
+</button>
+      </ul>
+</form>
+</div>
+<script>
+const comment_form=document.getElementById("reply_form");
+
+                             function change_comment_parent(element=null,status='default',text='',parent_id='')
+                             {
+
+                                 if(status!='default')
+                                 {
+                                     comment_form.querySelector('input[name="parent_id"]').value=parent_id;
+                                     comment_form.querySelector('p').innerText=` پاسخ به ${text}`;
+                                 element.appendChild(comment_form);
+                                 comment_form.style.display='block';
+
+
+                                 }
+                                 else {document.body.appendChild(comment_form);comment_form.style.display='none';}
+                             }
+</script>
+{% endblock %}
+{% block dynmic_footer %}
+
+
+{% endblock %}
+

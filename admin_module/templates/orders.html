@@ -1,0 +1,278 @@
+{% extends 'admin_page_index.html' %}
+{% load polls_extra %}
+{% block title %}
+<style>
+div.order
+{
+    background-color: grey;
+    border: none;
+    border-radius: 2%;
+    box-shadow: 5px 5px 5px grey;
+    font-family: Vazir;
+}
+p{
+    font-size: 20px;
+    color: lightgrey;
+}
+
+div.container
+{
+    font-size: 20px;
+}
+div.reject_popup
+{
+    display: block;
+  animation-name:fade_in_pop ;
+  animation-duration: 1s;
+    animation-fill-mode:forwards;
+}
+
+@keyframes fade_in_pop {
+  0% {opacity: 0%;}
+  100% {opacity: 100%;display: block}
+}
+div.reject
+{
+animation-name:fade_out_pop ;
+  animation-duration: 1s;
+    animation-fill-mode:forwards;
+}
+@keyframes fade_out_pop {
+  0% {opacity: 100%;display: block}
+  100% {opacity:0%;display:none}
+}
+</style>
+سفارش های کاربران
+{% endblock %}
+
+
+{% block main_content %}
+    {% with status as st %}{% endwith %}
+    <div class="" style="z-index: 100;position: fixed;top:30%;left: 28%;height: fit-content;width: fit-content;display: none " id="reject_order_tab"  >
+    <div style="height: 400px;width: 600px;background-color: lightgrey;z-index: 100;border: 2px silver solid;">
+        <img src="/static/images/rejected.png" style="height: 6%;width: 4%;position: relative;right: -2%;top:-3%" onclick="open_or_close_reject_pop_up('close')">
+        <div class="container" style="position: relative;right: 25%;top:30%;height: 100%;width: 100%;z-index: 100">
+    دلیل رد سفارش:
+        <br>
+        <textarea required placeholder="دلیل رد سفارش را اینجا بنویسید" id="reason_to_reject" ></textarea>
+        <br>
+        <button  style="margin-right: 10%;border: none;background-color: lightgreen" onclick="reject_order(null,null,'reject',null)">
+            ثبت
+        </button>
+            </div>
+
+    </div>
+    </div  >
+    <script>
+    var details_to_delete=[];
+        var details_to_chabnge_count=[];
+        var deleted_products=[];
+        var changed_amount_products=[];
+        var changes_message='';
+        let difference=0;
+        var order_to_reject_number='';
+        var order_to_reject_reciever_id='';
+
+         function delete_detail(id,order_Id,product_name)
+        {
+           if(document.getElementsByName(`order${order_Id}detail`).length-1<=0)
+           {
+               alert('تعداد محصولات یک سفارش نمی تواند سفر باشد،از گزینه رد سفارش استفاده کنید');
+               return;
+           }
+
+            details_to_delete.push(id);
+            deleted_products.push(product_name);
+            let price=parseInt(document.getElementById(`detail${id}total_price`).value);
+            var order_final_price=document.getElementById(`final_price${order_Id}`);
+            let final_price=parseInt(order_final_price.value);
+            order_final_price.value=(final_price-price).toString();
+            difference+=-price;
+
+
+            document.getElementById(id).remove();
+
+        }
+
+    function change_detail_amount(value,id,singular_price,order_id,product_name)
+    {
+        var doc=document.getElementById('detail'+id+'total_price');
+        let previous_price_price=parseInt(document.getElementById('final_price'+order_id).value);
+        let count=parseInt(value);
+        details_to_chabnge_count.push([id,count])
+        changed_amount_products.push([product_name,count]);
+        doc.value=parseInt(singular_price)*count;
+        var total_price=document.getElementById('final_price'+order_id);
+        var fields=document.getElementsByClassName('detail_price');
+
+
+        var total_price_number=0;
+        for(let i=0;i<fields.length;i++)
+        {
+
+        total_price_number+=parseInt(fields[i].value);
+        }
+        total_price.value=total_price_number;
+        difference-=(previous_price_price-total_price_number);
+        console.log(difference);
+    }
+    function confirm_order(user_id,orderid)
+    {
+        if(deleted_products.length!=0||changed_amount_products.length!=0) {
+            if (deleted_products.length != 0) {
+                changes_message = 'محصولات ';
+                for (let i = 0; i < deleted_products.length; i++) {
+
+                    changes_message += deleted_products[i] + ' و ';
+
+                }
+
+                changes_message += ' از سبد خرید شما حذف شدند!';
+
+            }
+            if (changed_amount_products.length != 0) {
+                changes_message += 'تعداد محصول ';
+                for (let i = 0; i < changed_amount_products.length; i++) {
+
+                    changes_message += `${changed_amount_products[i][0]} به ${changed_amount_products[i][1]}` + ' ، ';
+
+
+                }
+
+            }
+            changes_message += ' تغییر پیدا کرد! ';
+                changes_message += `مبلغ بدهکاری سایت به شما : ${difference}`;
+        }
+        else
+        {
+            changes_message='سفارش شما با موفقیت تایید شد!';
+        }
+         $.get('{% url 'confirm_reject_order' 'confirm' %}'+'?change-details='+details_to_chabnge_count+'&delete-details='+details_to_delete
+         +'&message='+changes_message+'&userid='+user_id+'&debtvalue='+difference+'&orderid='+orderid).then(res=>{});
+
+        console.log(changes_message);
+    }
+    function open_or_close_reject_pop_up(action)
+    {
+        var doc =document.getElementById('reject_order_tab');
+        if(action==='open')
+        {
+            doc.style.display='block';
+          doc.className='reject_popup';
+
+        }
+        else if(action==='close')
+        {
+            doc.className='reject';
+        }
+    }
+    function reject_order(user_id=null,order_number=null,func,total_price=null)
+    {
+
+        if(func==='open')
+        {
+           open_or_close_reject_pop_up('open');
+
+           order_to_reject_number=order_number;
+           difference=total_price;
+           order_to_reject_reciever_id=user_id;
+
+        }
+        else if (func==='reject')
+        {
+            var reason=document.getElementById('reason_to_reject').value;
+            changes_message+=`سفارش شما به شماره ${order_to_reject_number} به علت  ${reason} تایید نشد.`
+            changes_message+=`/n مبلغ طلبکاری شما ${difference}`;
+         $.get('{% url 'confirm_reject_order' 'reject' %}'
+         +'?message='+changes_message+'&userid='+order_to_reject_reciever_id+'&amount='+difference+'&ordernumber='+order_to_reject_number).then(res=>{});
+         open_or_close_reject_pop_up('close');
+        }
+    }
+    </script>
+{% for order in orders %}
+    <div class="order" style="height: fit-content;width: fit-content;margin: auto" id="{{ order.id }}">
+    <p style="margin-right: 1%">کاربر:{{ order.user.username }}</p>
+    <br>
+    <p style="margin-right: 1%"> تاریخ ثبت سفارش:{{ order.order_date }}</p>
+    <br>
+    <p style="margin-right: 1%">قیمت نهایی سفارش:{{ order.get_total_price|three_digits_currensy }} تومان </p>
+    <br>
+     <p style="margin-right: 1%">شماره سفارش:{{ order.order_number }} </p>
+    <br>
+    <p style="margin-right: 1%">وضعیت سفارش: <img src="" id="order{{ order.id }}status" style="height: 15px;width: 15px" > </p>
+     <br>
+    {% if order.recive_info %}
+       <p style="margin-right: 1%"> مشخصات گیرنده:</p>
+        <div style="background-color: dimgrey;box-shadow: 0px 0px 6px lightgrey;border: none;border-radius: 2%;margin-right: 30%;
+;height: fit-content;width: fit-content">
+        {% for key,value in order.recive_info.get_fields.items %}
+           <p style="margin-right: 1%">
+            {{ key }}:{{ value }}
+           </p>
+            <br>
+        {% endfor %}
+        </div>
+    {% endif %}
+    <script>
+        var status_img=document.getElementById('order{{ order.id }}status');
+        switch ('{{ order.status }}')
+        {
+            case 'rejected':{status_img.src="/static/images/rejected.png";console.log('sdsd')}break;
+            case 'confirmed':{status_img.src="/static/images/confirmed.png";console.log('dfd')}break;
+            case 'not confirmed':{status_img.src="/static/images/not_confirmed.png";console.log('cvc')}break;
+        }
+
+
+
+    </script>
+
+
+    <br>
+    <p style="margin-right: 4%">
+        محصولات سفارش:
+    </p>
+    {% for detail in order.order_detail_set.all %}
+        <div class="container" style="background-color: lightgrey;width: fit-content;height: fit-content" id="{{ detail.id }}" name="order{{ order.id }}detail" >
+         محصول:{{ detail.product }}
+         <br>
+            <br>
+          تعداد محصول:<input type="number" max="{{ detail.count }}" value="{{ detail.count }}" min="1" style="border: none" onchange="change_detail_amount(
+              this.value,'{{ detail.id }}','{{ detail.product.price }}','{{ order.id }}','{{ detail.product.title }}'
+          )" class="detail_count" {% if status != 'not confirmed' %} readonly {% endif %}>
+        <br>
+            <br>
+        قیمت نهایی:<input type="number" max="{{ detail.total_price }}" value="{{ detail.total_price }}" min="0" style="border: none;color: black" readonly
+        id="detail{{ detail.id }}total_price" class="detail_price">  تومان
+        <br>
+            <br>
+        {% if status == 'not confirmed' %}
+        <button style="font-size: 10px;border: none;background-color: red;color:whitesmoke;margin-right: 70%;height:fit-content;width:fit-content" onclick="
+        delete_detail('{{ detail.id }}','{{ order.id }}','{{ detail.product.title }}')" class="delete_detail">
+            حذف محصول
+        </button>
+        {% endif %}
+        </div>
+        <br>
+        {% endfor %}
+    <br>
+
+    <div class="container" style="background-color: grey;width: fit-content;height: fit-content;color: whitesmoke">
+
+        قیمت نهایی سفارش:<input type="number" max="{{ order.get_total_price }}" value="{{ order.get_total_price }}" min="0" style="border: none;color: black"
+    id="final_price{{ order.id }}">   تومان
+    </div>
+    <br>
+    {% if status == 'not confirmed' %}
+    <button onclick="confirm_order('{{ order.user_id }}','{{ order.id }}')" style="border: none;position: relative;right:36%;bottom:5%;background-color: lightgreen;color:whitesmoke">
+    تایید سفارش
+    </button>
+    <button style="border: none;position: relative;right:38%;bottom:5%;background-color: red;color:whitesmoke" onclick="reject_order('{{ order.user_id }}','{{ order.order_number }}','open','{{ order.get_total_price }}')">
+    رد سفارش
+    </button>
+    {% endif %}
+     </div>
+    <br>
+    {% endfor %}
+
+
+{% endblock %}

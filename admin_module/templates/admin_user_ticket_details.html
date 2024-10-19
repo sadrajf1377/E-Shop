@@ -1,0 +1,117 @@
+{% extends 'admin_page_index.html' %}
+
+{% block main_content %}
+    <style>
+    div.messages_parent
+    {
+
+        height: 900px;
+        width: 96%;
+        margin-top: 2%;
+        box-shadow: inset 0 0 5px grey; background-color:lightgrey; border: none; border-radius: 0.5%;
+        overflow-y: scroll;
+
+    }
+    div.ticket_message
+    {
+        margin-top: 2%;
+        margin-right: 10%;
+        height: fit-content; width: 80%; background-color: grey; border: none; border-radius: 1%; box-shadow: 2px 2px 2px dimgrey;color: white;
+        text-align: right;
+    }
+     div.ticket_reply
+    {
+        margin-top: 2%;
+        margin-right: 15%;
+        height: fit-content; width: 80%; background-color: grey; border: none; border-radius: 1%; box-shadow: 2px 2px 2px dimgrey;color: white;
+        text-align: right;
+    }
+    p.reply_form_open:hover
+    {
+         color: blue;cursor: pointer;
+    }
+    textarea:focus
+    {
+        animation-name: text_area_focus;
+        animation-duration: 10s;
+        animation-iteration-count: infinite;
+
+    }
+    @keyframes text_area_focus {
+        0%{border: 2px solid black}
+        50%{border: 2px solid whitesmoke}
+        100%{border: 2px solid black}
+    }
+    </style>
+<div class="messages_parent">
+<script>
+    function open_or_close_comment_form(To_do,parent_el=null,mes_id=null)
+     {
+         const reply_form=document.getElementById('reply_form');
+         if (To_do==="open")
+         {
+             parent_el.appendChild(reply_form);
+
+           reply_form.style.display='block';
+           reply_form.querySelector('#parent_message_id').value=mes_id;
+         }
+         else
+         {
+            reply_form.style.display='none';
+         }
+     }
+</script>
+{% with username as usname %}
+{% for message in messages %}
+ <div class="ticket_message">
+
+    <p>
+        {{usname}}
+     گفت:
+    </p>
+<p style="margin-right: 5%">
+ {{ message.message }}
+    </p>
+
+ {% for mes in message.ticket_message_set.all %}
+     <div class="ticket_reply">
+     <p>
+        Admin  در پاسخ به {{ usname|escape }}
+     گفت:
+    </p>
+<p style="margin-right: 5%">
+ {{ mes.message|escape }}
+    </p>
+     </div>
+     {% endfor %}
+ <p class="reply_form_open" onclick="open_or_close_comment_form('open',this.parentElement,'{{ message.id }}')" style="text-align: left" >
+     پاسخ به این پیام
+ </p>
+ </div>
+
+    {% endfor %}
+{% endwith %}
+<form style="height: fit-content;width: fit-content;display: none;margin: auto" id="reply_form" method="post" action="{% url 'answer_ticket' %}">
+    {% csrf_token %}
+     <textarea type="text" maxlength="100" placeholder=" پاسخ را اینجا وارد کنید" style="height: 100px;width:90%;color: black;border-radius: 1.5%;
+     outline: none;resize: none" name="message"></textarea>
+     <input type="text" style="display: none" id="parent_ticket_id" name="parent_ticket_id" value="{{ ticket_id }}">
+     <input type="text" style="display: none" id="parent_message_id" name="parent_message_id">
+
+     <button style="margin-right: 26%;
+     background-color: red;border: none;border-radius: 10%;color: white;" onclick="event.preventDefault();open_or_close_comment_form('close')">
+       X بستن
+      </button>
+      <button style="background-color: green;border: none;border-radius: 10%;color: white;" type="submit">
+       ارسال پاسخ
+      </button>
+    </form>
+<div style="position: absolute;right: 50%;text-align: center">
+صفحات
+<br>
+{% for page in paginator.page_range %}
+    <a href="?page_nmuber={{ page }}" style="float: right"> {{ page }} </a>
+{% endfor %}
+</div>
+</div>
+{% endblock %}

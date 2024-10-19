@@ -1,0 +1,33 @@
+{% extends 'base_layout.html' %}
+{% load polls_extra %}
+{% block title %} ویرایش اطلاعات کاربر{% endblock %}
+{% block content_title %} ویرایش اطلاعات کاربر {% endblock %}
+{% block main_content %}
+    <div class="container" style="background-color: lightgrey;box-shadow: 10px 10px 10px lightgrey;border: 1px solid lightgrey;width: fit-content" >
+<form method="post" action="{% url 'edit_user_info'    %}" style="margin-right: 10%" enctype="multipart/form-data">
+{% csrf_token %}
+<ul style="list-style: none">
+{% for field in form%}
+<li>
+{{ field.label }}:
+    <br>
+    {{ field }}
+
+
+
+    {% endfor %}
+<br>
+<button type="submit" style="background-color: #a0cc4b;color: white;height:50px;width: 100px;border: white 2px solid">
+    ثبت تغییرات
+</button>
+</li>
+</ul>
+</form>
+    </div>
+{% endblock %}
+
+<script>
+    function  fy()
+    {}
+
+</script>

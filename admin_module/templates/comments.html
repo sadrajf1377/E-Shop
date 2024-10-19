@@ -1,0 +1,20 @@
+{% extends 'admin_page_index.html' %}
+{% block title  %} نظرات کاربران {% endblock %}
+
+
+{% block main_content %}
+    {{ cmnt }}
+<div class="container" style="margin: auto">
+
+{% for commet in comments %}
+
+<div style="background-color: lightgrey" >
+  {{ commet.user|escape }}
+<br>
+{{ commet.comment_text|escape }}
+
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}

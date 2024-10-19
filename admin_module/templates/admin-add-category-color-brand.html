@@ -1,0 +1,24 @@
+{% extends 'base_layout.html' %}
+
+{% block title %} جدید{{ model }}اضافه کردن  {% endblock %}
+{% block main_content %}
+    <form method="post" action="{% url 'add-color-brand-category' model %}">
+{% csrf_token %}
+{% if model == 'brand' %}
+    :نام برند
+    {% elif model == 'category' %}
+    :عنوان دسته بندی
+    {% elif model == 'color' %}
+    :نام رنگ
+        {% endif %}
+
+
+    <input type="text" name="title"  >
+    <br>
+    <button type="submit">
+        اضافه کردن
+    </button>
+ </form>
+
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base_layout.html' %}
+{% block title %} محصولات مورد علاقه {% endblock %}
+{% block main_content %}
+{% for debt in debts %}
+    <div style="background-color: lightgrey;box-shadow: 5px 5px 5px silver;margin-top: 5%;border-radius: 3%">
+    <h4>
+        میزان طلبکاری:
+    </h4>
+    <h5 style="margin-right: 3%">
+        {{ debt.amount}}
+    </h5>
+    <h4>
+        وضعیت:
+    </h4>
+    <h5 style="margin-right:3%">
+        {% if debt.paid_status %} <p style="color: green">پرداخت شده</p> {% else %} <p style="color: red">پرداخت نشده</p> {% endif %}
+        
+    </h5>
+
+    </div>
+{% endfor %}
+{% endblock %}

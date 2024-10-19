@@ -1,0 +1,126 @@
+{% extends 'base_layout.html' %}
+{% load polls_extra %}
+{% load thumbnail %}
+{% block content_title %} محبوب ترین محصولات {% endblock %}
+{% block title %}
+
+    صفحه اصلی {% endblock %}
+
+{% block main_content %}
+
+
+<div style="position: relative">
+
+                    <div class="slide" style="position: relative;right: 0%" id="slide_div">
+                        <div class="row">
+{% for product in most_popular_products %}
+
+<div class="span3">
+    	            	    <div class="product">
+    	            	        <div class="product-img featured">
+    	            	            <div class="picture">
+                                        {% thumbnail product.thumbnail_photo "400x400" crop="center" as thumb %}
+    	            	        	    <img src="{{ thumb.url }}" alt="" width="518" height="358" style="border-radius: 10%" />
+                                        {% endthumbnail %}
+    	            	        		<div class="img-overlay">
+    	            	        		    <a href="{% url 'show-product-details' product.url %}" class="btn more btn-primary">{{ product.short_description }}</a>
+    	            	        		    <a href="#" class="btn buy btn-danger">خرید</a>
+    	            	        		</div>
+    	            	            </div>
+    	            	        </div>
+    	            	        <div class="main-titles">
+    	            	            <h4 class="title">{{ product.price|three_digits_currensy}}</h4>
+    	            	            <h5 class="no-margin">{{ product.title }}</h5>
+    	            	        </div>
+    	            	        <p class="desc">{{ product.main_description }}</p>
+    	            	        <p class="center-align stars">
+                    	            <span class="icon-star stars-clr"></span>
+                    	            <span class="icon-star stars-clr"></span>
+                    	            <span class="icon-star stars-clr"></span>
+                    	            <span class="icon-star stars-clr"></span>
+                    	            <span class="icon-star stars-clr"></span>
+
+                    	        </p>
+    	            	    </div>
+                	      </div> <!-- /product -->
+{% endfor %}
+</div>
+</div>
+</div>
+
+{% endblock %}
+{% block products %}
+   <!--  = Most Popular products =  -->
+    <!--  ==========  -->
+    <div class="most-popular blocks-spacer" style="background-image: url(/static/images/backgrounds/pattern-12.gif)">
+    	<div class="container">
+
+    	    <!--  ==========  -->
+			<!--  = Title =  -->
+			<!--  ==========  -->
+    	    <div class="row">
+    	    	<div class="span12">
+    	    	    <div class="main-titles lined">
+    	                <h2 class="title"><span class="light">جدیدترین محصولات فروشگاه</span></h2>
+    	            </div>
+    	    	</div>
+    	    </div> <!-- /title -->
+
+	    	<div class="row popup-products">
+
+
+               {% for pr in latest_products %}
+		        <!--  ==========  -->
+				<!--  = Product =  -->
+				<!--  ==========  -->
+                <div class="span3">
+                    <div class="product">
+                        <div class="product-img">
+                            <div class="picture">
+                                {% thumbnail pr.thumbnail_photo "450x450" crop="center" as thumb %}
+    	            	        	    <img src="{{ thumb.url }}" alt="" width="540" height="412" />
+                                        {% endthumbnail %}
+
+                                <div class="img-overlay">
+                                    <a href="{% url 'show-product-details' pr.url %}" class="btn more btn-primary">توضیحات بیشتر</a>
+                                    <a href="#" class="btn buy btn-danger">اضافه به سبد خرید</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="main-titles no-margin">
+                            <h4 class="title">$32</h4>
+                            <h5 class="no-margin">{{ pr.title }}</h5>
+                        </div>
+                        <p class="desc">{{ pr.short_description }}</p>
+                        <p class="center-align stars">
+                            <span class="icon-star stars-clr"></span>
+                            <span class="icon-star stars-clr"></span>
+                            <span class="icon-star"></span>
+                            <span class="icon-star"></span>
+                            <span class="icon-star"></span>
+
+                        </p>
+                    </div>
+                </div> <!-- /product -->
+
+             {% endfor %}
+
+
+
+
+
+
+
+
+
+
+                    	    </div>
+    	</div>
+    </div> <!-- /most popular -->
+
+{% endblock %}
+
+{% block dynmic_footer %}
+
+
+{% endblock %}

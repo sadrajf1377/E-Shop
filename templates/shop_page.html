@@ -1,0 +1,208 @@
+{% extends 'base_layout.html' %}
+{% load polls_extra %}
+{% block title %} فروشگاه {% endblock %}
+{% load thumbnail %}
+
+{% block main_content %}
+ <div class="container" style="margin-top: 40px">
+        <div class="push-up blocks-spacer">
+            <div class="row">
+
+                <!--  ==========  -->
+                <!--  = Sidebar =  -->
+                <!--  ==========  -->
+                <aside class="span3 left-sidebar" id="tourStep1">
+                    <div class="sidebar-item sidebar-filters" id="sidebarFilters">
+
+                        <!--  ==========  -->
+                        <!--  = Sidebar Title =  -->
+                        <!--  ==========  -->
+                        <div class="underlined">
+                        	<h3><span class="light">بر اساس فیلتر</span> خرید کنید</h3>
+                        </div>
+
+                        <!--  ==========  -->
+                        <!--  = Categories =  -->
+                        <!--  ==========  -->
+                        <div class="accordion-group" id="tourStep2">
+                            <div class="accordion-heading">
+
+                                <a class="accordion-toggle" data-toggle="collapse" href="#filterOne">دسته بندی<b class="caret"></b></a>
+
+                            </div>
+                            <div id="filterOne" class="accordion-body collapse in">
+                                <div class="accordion-inner">
+                                    {% for cat in categories %}
+
+                                    <a href="#" id="{{ cat.id }}" class="selectable
+                               {% if cat.id|check_if_in:selected_cats %} selected {% endif %}"><i class="box"></i>{{ cat.title }}</a>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        </div> <!-- /categories -->
+
+
+                        <!--  ==========  -->
+                        <!--  = Size filter =  -->
+                        <!--  ==========  -->
+                        <div class="accordion-group" id="tourStep3">
+                            <div class="accordion-heading">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" href="#filterTwo">سایز <b class="caret"></b></a>
+                            </div>
+                            <div id="filterTwo" class="accordion-body collapse">
+                                <div class="accordion-inner">
+                                    <a href="#" data-target="xs" data-type="size" class="selectable detailed"><i class="box"></i> XS</a>
+<a href="#" data-target="s" data-type="size" class="selectable detailed"><i class="box"></i> S</a>
+<a href="#" data-target="m" data-type="size" class="selectable detailed"><i class="box"></i> M</a>
+<a href="#" data-target="l" data-type="size" class="selectable detailed"><i class="box"></i> L</a>
+<a href="#" data-target="xl" data-type="size" class="selectable detailed"><i class="box"></i> XL</a>
+<a href="#" data-target="xxl" data-type="size" class="selectable detailed"><i class="box"></i> XXL</a>
+
+                                </div>
+                            </div>
+                        </div> <!-- /size filter -->
+
+                        <!--  ==========  -->
+                        <!--  = Color filter =  -->
+                        <!--  ==========  -->
+                        <div class="accordion-group">
+                            <div class="accordion-heading">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" href="#filterThree">رنگ <b class="caret"></b></a>
+                            </div>
+                            <div id="filterThree" class="accordion-body collapse">
+                                <div class="accordion-inner">
+                                    <a href="#" data-target="red" data-type="color" class="selectable detailed"><i class="box"></i> قرمز</a>
+<a href="#" data-target="green" data-type="color" class="selectable detailed"><i class="box"></i> سبز</a>
+<a href="#" data-target="blue" data-type="color" class="selectable detailed"><i class="box"></i> آبی</a>
+<a href="#" data-target="pink" data-type="color" class="selectable detailed"><i class="box"></i> صورتی</a>
+<a href="#" data-target="purple" data-type="color" class="selectable detailed"><i class="box"></i> بنفش</a>
+<a href="#" data-target="orange" data-type="color" class="selectable detailed"><i class="box"></i> نارنجی</a>
+
+                                </div>
+                            </div>
+                        </div> <!-- /color filter -->
+
+                        <!--  ==========  -->
+                        <!--  = Brand filter =  -->
+                        <!--  ==========  -->
+                        <div class="accordion-group">
+                            <div class="accordion-heading">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" href="#filterFour">برند <b class="caret"></b></a>
+                            </div>
+                            <div id="filterFour" class="accordion-body collapse" style="margin-bottom: 50px;overflow-y: scroll">
+                                <div class="accordion-inner">
+                                <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+                                <script>
+
+                                    function set_filters()
+                                    {
+
+                                      var cats_doc=document.getElementById('cats');
+                                      var brs_doc=document.getElementById('brs');
+                                      const cats_input=document.getElementsByClassName('selectable selected');
+                                      const brs_input=document.getElementsByClassName('selectable detailed selected');
+                                      cats_doc.value='';brs_doc.value='';
+                                      for(const cat of cats_input){cats_doc.value+=cat.id.toString()+','; }
+                                      for(const br of brs_input){brs_doc.value+=br.id.toString()+','; }
+
+                                    }
+                                </script>
+                                    {% for brand in brands %}
+                                    <a href="#"  class="selectable detailed" id='{{ brand.id }}'><i class="box" ></i> {{ brand.title }}</a>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        </div> <!-- /brand filter -->
+
+                        <a href="#" class="remove-filter" id="removeFilters"><span class="icon-ban-circle"></span> حذف همه فیلتر ها</a>
+                    <form method="post" action="{% url 'show_filtered_products' %}">
+                        {% csrf_token %}
+                        <input style="display: none" name="brs" type="text" id="brs" value="">
+                        <input style="display: none" name="cats" type="text" id="cats" value="">
+                        <input style="display: none" name="pr_name" type="text"  value="">
+                        <button  onclick="set_filters()">مال فیلتر</button>
+                        </form>
+                    </div>
+                </aside> <!-- /sidebar -->
+
+                <!--  ==========  -->
+                <!--  = Main content =  -->
+                <!--  ==========  -->
+                <section class="span9">
+
+                    <!--  ==========  -->
+                    <!--  = Title =  -->
+                    <!--  ==========  -->
+                    <div class="underlined push-down-20">
+                        <div class="row">
+                            <div class="span5">
+                                <h3><span class="light"></span> {{ filters }}</h3>
+                            </div>
+                            <div class="span4">
+                                <div class="form-inline sorting-by" id="tourStep4">
+                                    <label for="isotopeSorting" class="black-clr">چینش :</label>
+                                    <select id="isotopeSorting" class="span3">
+                                        <option value='{"sortBy":"price", "sortAscending":"true"}'>بر اساس قیمت (کم به زیاد) &uarr;</option>
+                                        <option value='{"sortBy":"price", "sortAscending":"false"}'>بر اساس قیمت (زیاد به کم) &darr;</option>
+                                        <option value='{"sortBy":"name", "sortAscending":"true"}'>بر اساس نام (صعودی) &uarr;</option>
+                                        <option value='{"sortBy":"name", "sortAscending":"false"}'>بر اساس نام (نزولی) &darr;</option>
+                                        <option value='{"sortBy":"popularity", "sortAscending":"true"}'>بر اساس محبوبیت (کم به زیاد) &uarr;</option>
+                                        <option value='{"sortBy":"popularity", "sortAscending":"false"}'>بر اساس محبوبیت (زیاد به کم) &darr;</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- /title -->
+
+                    <!--  ==========  -->
+                    <!--  = Products =  -->
+                    <!--  ==========  -->
+                    <div class="row popup-products">
+                        <div id="isotopeContainer" class="isotope-container">
+
+                	        <!--  ==========  -->
+                            <!--  = Single Product =  -->
+                            <!--  ==========  -->
+                            {% for product in products %}
+                    	    <div class="span3 filter--t-shirts" data-price="1178" data-popularity="4" data-size="xs|m|xl|xxl" data-color="red|pink" data-brand="adidas">
+                    	        <div class="product">
+
+                    	            <div class="product-img">
+                    	                <div class="picture">
+                                            {% thumbnail product.thumbnail_photo "450x450" crop="center"  as thumbn  %}
+                    	                    <img width="540" height="374" alt="" src="{{thumbn.url}}" />
+                                            {%endthumbnail%}
+                    	                    <div class="img-overlay">
+                    	                        <a class="btn more btn-primary" href="#">توضیحات بیشتر</a>
+                    	                        <a class="btn buy btn-danger" href="#">اضافه به سبد خرید</a>
+                    	                    </div>
+                    	                </div>
+                    	            </div>
+                    	            <div class="main-titles no-margin">
+                    	                <h4 class="title">  تومان{{ product.price|three_digits_currensy }} </h4>
+                    	                <h5 class="no-margin isotope--title">{{ product.title }}</h5>
+                    	            </div>
+                    	            <p class="center-align stars">
+                    	                <span class="icon-star stars-clr"></span>
+                    	                <span class="icon-star stars-clr"></span>
+                    	                <span class="icon-star stars-clr"></span>
+                    	                <span class="icon-star stars-clr"></span>
+                    	                <span class="icon-star"></span>
+
+                    	            </p>
+                    	        </div>
+                    	    </div> <!-- /single product -->
+                           {% endfor %}
+
+                    	</div>
+                	</div>
+                	<hr />
+                </section> <!-- /main content -->
+            </div>
+        </div>
+    </div> <!-- /container -->
+
+
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'admin_page_index.html' %}
+
+
+
+{% block main_content %}
+    <style>
+.ticket
+{
+    position: relative;
+    width:60%;
+    margin-right:10% ;
+    height: fit-content;
+    background-color: whitesmoke;
+    border: none;
+    box-shadow: 4px 4px 6px darkslategrey;
+    border-radius: 2%;
+    text-align: right;
+    margin-top: 2%;
+    text-align: center;
+    text-shadow: black;
+    margin-right:17%;
+    overflow: hidden;
+
+}
+.tickets_container
+{
+    margin-top: 1%;
+    height: 100%; width: 96%; overflow-y: scroll; background-color: lightgrey;border: none;
+    border-radius: 1%; box-shadow:10px 10px  10px grey;
+    box-shadow: inset 0 0 10px grey;
+}
+div.ticket_hover
+{
+    position: absolute;
+    top:0;right: 0;
+    transition: opacity 0.5s ease;
+    width: 100%;
+    height: 100%;
+    background-color:lightgrey;
+    opacity: 0%;
+    z-index: 2;
+    overflow-x: hidden;
+    display: none;
+}
+
+div.ticket_hover~a
+{
+    width: fit-content; height: fit-content;
+    position: absolute; right: -150%;top:33%;
+    background-color: grey;
+    transition:right 0.5s ease;
+    background-color: green; color: white;text-align: center;border: none; border-radius: 5%; box-shadow: 2px 2px 2px green;
+    opacity: 100%;
+    z-index: 3;
+}
+div.ticket_hover~a:hover
+{
+    cursor: pointer;
+}
+</style>
+    <script>
+
+     function ticket_hover_on_or_off(element,To_do)
+     {
+
+         const ticket_hover=element.querySelector('.ticket_hover');
+         const btn=ticket_hover.parentElement.querySelector('a');
+    if(To_do==='on')
+    {
+
+        ticket_hover.style.display='block';
+        ticket_hover.style.opacity='70%';
+        btn.style.display='block';
+        btn.style.right='45%';
+    }
+    else
+    {
+        ticket_hover.style.opacity='0%';
+        btn.style.right='-150%';
+    }
+     }
+    </script>
+    <div class="tickets_container">
+{% for ticket in tickets %}
+  <div class="ticket" onmouseenter="ticket_hover_on_or_off(this,'on');" onmouseleave="ticket_hover_on_or_off(this,'off');">
+  ایجاد شده توسط: {{ ticket.created_by.username }}
+  <br>
+    عنوان تیکت:{{ ticket.title }}
+  <br>
+  تاریخ ایجاد تیکت:{{ ticket.creation_date }}
+  <br>
+  <div class="ticket_hover">
+
+  </div>
+  <a href="{% url 'show_ticket_detaails' ticket.title %}">
+          باز کردن تیکت
+      </a>
+  </div>
+
+    {% endfor %}
+    </div>
+   <div style="position: absolute;right: 50%;text-align: center">
+صفحات
+<br>
+{% for page in paginator.page_range %}
+    <a href="?page_nmuber={{ page }}" style="float: right"> {{ page }} </a>
+{% endfor %}
+</div>
+{% endblock %}
