@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-v-&z_c=2g-v!lhs13)6^=isk7&a5@*oyof(&_lefeq&(9yuao4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -129,13 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en'
-LANGUAGES = [
-    ('en', _('English')),
-    ('fa', _('Persian')),
-    # Add other languages as needed
-]
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'fa'
+
+TIME_ZONE = 'Tehran'
 
 USE_I18N = True
 
@@ -144,8 +140,8 @@ USE_TZ = True
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='sadrodinjafari77@gmail.com'
-EMAIL_HOST_PASSWORD='swqj jvxw rqsb kxcq'
+EMAIL_HOST_USER='your email address'
+EMAIL_HOST_PASSWORD='your email password'
 EMAIL_PORT=587
 
 # Static files (CSS, JavaScript, Images)
