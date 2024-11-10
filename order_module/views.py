@@ -1,11 +1,17 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import ListView, UpdateView
 from product_module.models import products,product_color_avalibity
 from .models import order,order_detail,reciver_info
+from custom_decorators import login_required_api
+
+
 # Create your views here.
+@login_required_api
 def add_product(request):
     count=int(request.GET.get('count'))
     user_Id=request.user.id
@@ -25,6 +31,8 @@ def add_product(request):
     return JsonResponse(data={'total_price':'{:,}'.format(new_order.get_total_price()),'pricevl':'{:,}'.format(new_detail.total_price),'countvl':new_detail.count
                               ,'detailid':new_detail.id,'status':'succeed'}
                         )
+
+@login_required_api
 def change_product_amount(request):
     detail_count_old=order_detail.objects.filter(id=request.GET.get('detailid')).first().count
     detail_count_new =int(request.GET.get('amount'))
@@ -48,7 +56,7 @@ def change_product_amount(request):
          '{:,}'.format(new_order.get_total_price())})
 
 
-
+@login_required_api
 def delete_detail(request):
     if request.method == 'GET':
         user_id = request.user.id
@@ -63,6 +71,8 @@ def delete_detail(request):
         new_detail.delete()
         return JsonResponse(data={'totalprice': '{:,}'.format(new_order.get_total_price())})
 
+
+@method_decorator(login_required,name='dispatch')
 class load_order_page(ListView):
     template_name = 'step-1.html'
     model = order_detail
@@ -77,11 +87,12 @@ class load_order_page(ListView):
         contex['order']= order.objects.filter(is_paid=False,user_id=self.request.user.id).first()
         return contex
 
-
+@method_decorator(login_required,name='dispatch')
 class load_step_3(View):
     def get(self,request:HttpRequest):
         return render(request,'step-3.html')
 
+@method_decorator(login_required,name='dispatch')
 class Order_history(ListView):
     template_name = 'user_orders.html'
     model = order
@@ -100,6 +111,8 @@ class Order_history(ListView):
         query_set=super().get_queryset().filter(user_id=self.request.user.id,is_paid=True).all()
         return query_set
 
+
+@method_decorator(login_required,name='dispatch')
 class Update_Receiver_Info(UpdateView):
     template_name = 'step-2.html'
     success_url = reverse_lazy('step-3')

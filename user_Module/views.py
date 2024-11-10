@@ -17,7 +17,7 @@ from product_module.models import products
 from admin_module.models import debts
 
 from .forms import ticket_form
-
+from custom_decorators import login_required_api
 
 @method_decorator(login_required,name='dispatch')
 class edit_user_info(UpdateView):
@@ -78,6 +78,9 @@ def change_password(request,reset_code):
     elif request.method=="GET":
         return render(request,'reset_password_page.html',{'reset_code_value':reset_code,'error':''})
 
+
+
+@method_decorator(login_required,name='dispatch')
 class show_user_tickects(ListView):
     template_name = 'user_tickets.html'
     model = user_ticket
@@ -90,7 +93,7 @@ class show_user_tickects(ListView):
         print(query_set)
         return query_set
 
-
+@method_decorator(login_required,name='dispatch')
 class ticket_details(ListView):
     model=ticket_message
     template_name = 'ticket_details.html'
@@ -108,6 +111,8 @@ class ticket_details(ListView):
         query_set=query_set.filter(parent_ticket__title=title,parent_ticket__created_by_id=user_id,parent_message_id__isnull=True).all()
         return query_set
 
+
+@method_decorator(login_required_api(),name='dispatch')
 class new_ticket(View):
     def post(self,request):
         title=request.POST.get('ticket_title')
@@ -117,6 +122,9 @@ class new_ticket(View):
         user_id=request.user.id
         user_ticket.objects.create(title=title,created_by_id=user_id).save()
         return JsonResponse({'status':'success','url':reverse('my_tickets')})
+
+
+@method_decorator(login_required_api,name='dispatch')
 class create_new_ticket_message(View):
     def post(self,request:HttpRequest):
 
@@ -136,7 +144,7 @@ class create_new_ticket_message(View):
             print(f'{e}')
             return JsonResponse({'status':'fail','e_message':'مشکلی در ارسال پیام به وجود آمد!لطفا دورباره تلاش کنید'})
 
-
+@method_decorator(login_required_api,name='dispatch')
 class show_user_notficitations(View):
     def get(self,request):
         page_number=request.GET.get('pagenumber')
@@ -152,6 +160,8 @@ class show_user_notficitations(View):
         page_numbers=list(range(0,pages_count,1))
         return JsonResponse({'result':result,'pages_count':pages_count,'page_numbers':page_numbers})
 
+
+@method_decorator(login_required,name='dispatch')
 class my_favourites(ListView):
     model = products
     template_name = 'user_favourite_products.html'
@@ -162,6 +172,8 @@ class my_favourites(ListView):
         query=super().get_queryset().filter(product_wish_list__users__in=[user])
         return query
 
+
+@method_decorator(login_required,name='dispatch')
 class my_debts(ListView):
     template_name = 'user_debts.html'
     model=debts
@@ -170,6 +182,8 @@ class my_debts(ListView):
         query=super().get_queryset().filter(user_id=self.request.user.id).all()
         return query
 
+
+@method_decorator(login_required_api,name='dispatch')
 class mark_notif_as_read(View):
     def get(self,request):
         user_id=request.user.id
