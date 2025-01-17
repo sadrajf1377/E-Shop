@@ -112,7 +112,7 @@ class ticket_details(ListView):
         return query_set
 
 
-@method_decorator(login_required_api(),name='dispatch')
+@method_decorator(login_required_api,name='dispatch')
 class new_ticket(View):
     def post(self,request):
         title=request.POST.get('ticket_title')

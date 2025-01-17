@@ -8,3 +8,4 @@ def login_required_api(func):
             return func(*args)
         else:
             return JsonResponse({'error':'برای دسترسی به این بخش ابتدا وارد شوید'},status=403)
+    return wrapper
