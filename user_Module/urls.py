@@ -3,7 +3,7 @@ from django.urls import path
 
 from user_Module import models
 from .views import edit_user_info,ask_for_password_reset,change_password,my_favourites,my_debts,show_user_notficitations,show_user_tickects,ticket_details
-from .views import new_ticket,create_new_ticket_message,mark_notif_as_read
+from .views import new_ticket,create_new_ticket_message,mark_notif_as_read,change_preferred_language
 
 urlpatterns=[path('edit_user_info/',edit_user_info.as_view(),name='edit_user_info')
              ,path('ask_for_password_reset',ask_for_password_reset.as_view(),name='ask_for_password_reset')
@@ -13,6 +13,7 @@ urlpatterns=[path('edit_user_info/',edit_user_info.as_view(),name='edit_user_inf
             ,path('user_debts/',my_debts.as_view(),name='my_debts')
              ,path('user_tickets/',show_user_tickects.as_view(),name='my_tickets')
              ,path('ticket_details/<title>',ticket_details.as_view(),name='ticket_dtails')
+,path('change_language/<language>', change_preferred_language, name='change_language')
 ,path('new_tickets/',new_ticket.as_view(),name='new_tickets')
 ,path('new_ticket_message/',create_new_ticket_message.as_view(),name='new_ticket_message')
 ,path('mark_notif_as_read/',mark_notif_as_read.as_view(),name='mark_notif_as_read')

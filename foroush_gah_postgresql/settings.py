@@ -129,17 +129,24 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en'
-LANGUAGES = [
-    ('en', _('English')),
-    ('fa', _('Persian')),
-    # Add other languages as needed
-]
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_TZ = True
+
+
+LANGUAGE_CODE = 'en'
+LANGUAGES = [
+    ('en', 'English'),
+    ('fa', 'Persian'),
+]
+
+# مسیر فایل‌های ترجمه
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # یا مسیر دیگری که ترجمه‌ها ذخیره می‌شوند
+]
 
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True

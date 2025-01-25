@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
 from django.http import HttpResponse, HttpRequest, JsonResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -21,7 +21,7 @@ use_query=False
 class index_page(View):
     def get(self,request:HttpRequest):
         contex={}
-        print(request.user,'sdsd')
+
         contex['latest_products']=products.objects.order_by('-add_date')[:1]
         contex['most_popular_products']=products.objects.order_by('-rating')[:12]
         return render(request,'index_page.html',context=contex)
@@ -29,10 +29,10 @@ class index_page(View):
 class product_dtails(ListView):
     model =comment
     template_name = 'product_details.html'
-    paginate_by = 2
+    paginate_by = 20
     context_object_name = 'comments'
     def get(self,request,url):
-        self.product=products.objects.get(url=url)
+        self.product=get_object_or_404(products,url=url)
         return super().get(request)
     def __init__(self,**kwargs):
         self.product=''
@@ -128,3 +128,5 @@ class add_user_to_wish_list(View):
          update_status = 'add'
 
         return JsonResponse(data={'message':message,'st':update_status})
+
+

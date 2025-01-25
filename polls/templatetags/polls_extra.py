@@ -4,6 +4,9 @@ from product_module.models import products
 from user_Module.models import user_ticket
 register=template.Library()
 current_user:normal_user=None
+
+
+
 @register.filter
 def three_digits_currensy(value):
 
@@ -40,3 +43,4 @@ def check_if_in(value,iterable):
 def unasnwered_tickets_count(v):
     unread_tickets=len(set(user_ticket.objects.filter(ticket_message__is_answered=False).values_list('id')))
     return unread_tickets
+

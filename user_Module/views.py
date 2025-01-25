@@ -28,6 +28,17 @@ class edit_user_info(UpdateView):
     success_url = reverse_lazy('load_index_Page')
     def get_object(self, queryset=None):
         return self.model.objects.get(id=self.request.user.id)
+    def get(self,request):
+        return super().get(request)
+
+
+def change_preferred_language(request,language):
+    if request.method =='GET':
+        if language=='fa' or language == 'en':
+            request.session.update({'language':language})
+            print(request.session)
+            return redirect(reverse('load_index_Page'))
+
 
 class ask_for_password_reset(View):
     def get(self,request):
