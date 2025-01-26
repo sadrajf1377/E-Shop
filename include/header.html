@@ -35,15 +35,11 @@
                     <div class="topmost-line">
                         <div class="lang-currency">
                             <div class="dropdown js-selectable-dropdown">
-                                {% if request|get_language == 'en' %}
-                                <a data-toggle="dropdown" class="selected" href="#"><span class="js-change-text"><i class="famfamfam-flag-gb"></i>
-                                ENGLISH (EN)
-                                </span> <b class="caret"></b></a>
-                                {% else %}
+
                                 <a data-toggle="dropdown" class="selected" href="#"><span class="js-change-text"><i class="famfamfam-flag-ir"></i>
                                 PERSIAN (FA)
                                 </span> <b class="caret"></b></a>
-                                {% endif %}
+
                                 <!-- for all available country flags look the styles in lib/components/_flags.scss -->
                                 <ul class="dropdown-menu js-possibilities" role="menu" aria-labelledby="dLabel">
                                     <li><a href="{% url 'change_language' 'en' %}"><i class="famfamfam-flag-gb"></i> ENGLISH (EN)</a></li>

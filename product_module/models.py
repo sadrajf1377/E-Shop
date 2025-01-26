@@ -2,8 +2,9 @@ from wsgiref.validate import validator
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from user_Module.models import normal_user, user_notifications
+from user_Module.models import normal_user
 from django.utils.text import slugify
+from notification_module.models import user_notifications
 class colors(models.Model):
     color=models.CharField(verbose_name='رنگ',max_length=30,blank=True,null=True)
     color_to_display=models.CharField(max_length=30,verbose_name='رنگ html',default='white')

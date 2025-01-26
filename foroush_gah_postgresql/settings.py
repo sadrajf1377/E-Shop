@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     ,'comments_module'
     ,'order_module'
     ,'admin_module'
+    'notification_module',
+    'ticket_module'
 
 
 ]

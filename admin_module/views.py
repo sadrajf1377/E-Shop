@@ -11,25 +11,14 @@ from django.views import View
 from django.views.generic import ListView, UpdateView, CreateView, DeleteView
 
 import comments_module.models
+from notification_module.models import user_notifications
 from product_module.models import products,product_article,article_picture
 from .forms import Product_edit_form,Article_form
 from product_module.models import images,product_category,colors,brands,product_color_avalibity
 from order_module.models import order,order_detail
-from user_Module.models import normal_user, user_ticket, ticket_message, user_notifications
-from .models import debts
-def user_is_admin(admin_lvl):
-  def Wrapper(func):
-          def To_do(*args, **kwargs):
-              request: HttpRequest = args[0]
 
-              if not request.user.is_authenticated:
-                  return redirect(reverse('login-user'))
-              if request.user.admin_level <= admin_lvl and request.user.user_type == 'admin':
-                  return func(*args,**kwargs)
-              else:
-                  return render(request,'404.html',context={})
-          return To_do
-  return Wrapper
+from .models import debts
+from custom_decorators import user_is_admin
 
 
 @method_decorator(user_is_admin(admin_lvl=3),name='dispatch')
@@ -263,45 +252,3 @@ class Create_New_Article(View):
         else:
             return render(request, 'admin_add_new_article.html', context={'form': Article_form(None)})
 
-@method_decorator(user_is_admin(admin_lvl=3),name='dispatch')
-class show_tickets(ListView):
-    model=user_ticket
-    template_name = 'admin_user_tickets.html'
-    paginate_by = 8
-    ordering = '-creation_date'
-    context_object_name = 'tickets'
-    def get_queryset(self):
-        query_set=super().get_queryset()
-        return query_set
-
-@method_decorator(user_is_admin(admin_lvl=3),name='dispatch')
-class show_ticket_details(ListView):
-    template_name = 'admin_user_ticket_details.html'
-    model = ticket_message
-    paginate_by = 10
-    ordering = '-date'
-    context_object_name = 'messages'
-    def get_queryset(self):
-        query_set=super().get_queryset()
-        ticket_tile=self.kwargs['title']
-        query_set=query_set.filter(parent_ticket__title=ticket_tile,parent_message_id=None).all()
-        return query_set
-    def get_context_data(self, *, object_list=None, **kwargs):
-        contex=super().get_context_data()
-        parent_tick=user_ticket.objects.get(title=self.kwargs['title'])
-        contex['username']=parent_tick.created_by.username
-        contex['ticket_id']=parent_tick.id
-        return contex
-
-@method_decorator(user_is_admin(admin_lvl=3),name='dispatch')
-class answer_ticket(View):
-    def post(self,request:HttpRequest):
-        parent_ticket_id=request.POST.get('parent_ticket_id')
-        parent_message_id=request.POST.get('parent_message_id')
-        message=request.POST.get('message')
-        title=user_ticket.objects.get(id=parent_ticket_id).title
-        ticket_message.objects.create(parent_ticket_id=parent_ticket_id,parent_message_id=parent_message_id,message=message,is_answered=True).save()
-        parent_mes=ticket_message.objects.get(id=parent_message_id)
-        parent_mes.is_answered=True
-        parent_mes.save()
-        return redirect(reverse('show_ticket_detaails',kwargs={'title':title}))

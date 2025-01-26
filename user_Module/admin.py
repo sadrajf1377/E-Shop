@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import normal_user,user_false_password_attemp,user_notifications,user_ticket,ticket_message
+from .models import normal_user,user_false_password_attemp
+from ticket_module.models import ticket_message,user_ticket
+from notification_module.models import user_notifications
 # Register your models here.
 admin.site.register(normal_user)
 
