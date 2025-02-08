@@ -1,0 +1,101 @@
+{% extends 'base_layout.html' %}
+{% block title %} تیکت {{ ticket_title }} {% endblock %}
+
+{% block main_content %}
+    <style>
+    .messages_container
+    {
+        height: 100%;width: 100%;background-color: lightgrey;border: none; border-radius: 2%; box-shadow: 8px 8px 8px lightgrey;
+        overflow-y: scroll;
+    }
+     div.ticket_message
+    {
+        float: top;height: fit-content; width: 50%;
+         background-color: whitesmoke; border: none; border-radius: 4%; box-shadow: 2px 2px 5px whitesmoke;margin-right: 15%;
+         margin-top: 2%;
+         transition: all 0.75s ease;
+    }
+    div.ticket_message_reply
+    {
+        float: top;height: fit-content; width: 50%;
+         background-color: silver; border: none; border-radius: 4%; box-shadow: 2px 2px 5px silver;margin-right: 20%;
+         margin-top: 2%;
+         transition: all 0.75s ease;
+    }
+    </style>
+    <script>
+    function o_or_c_messageform(To_do)
+    {
+        const message_form=document.getElementById('new_message_form');
+        message_form.style.display=To_do==='open'?'block':'none';
+    }
+    function send_new_message()
+    {
+        const message_form=document.getElementById('new_message_form');
+        const form_data=new FormData(message_form);
+        $.ajax({
+            method:'POST',
+            url:'{% url 'new_ticket_message' %}',
+            data:form_data,
+            contentType:false,
+            processData: false,
+            headers:{
+                'X-CSRFToken':'{{ csrf_token }}'
+            }
+            ,success:function () {
+
+            }
+            ,error:function ()
+            {
+                message_form.querySelector('#message_error').innerText='مشکلی در ارسال پیام به وجود آمد!لطفا مجدد سعی بفرمایید';
+
+            }
+        }).then(res=>{
+            if(res.status==='success'){window.open(window.location,'_self');}
+            else {
+                message_form.querySelector('#message_error').style.display='block';
+                message_form.querySelector('#message_error').innerText=res.e_message;}
+        })
+
+    }
+    </script>
+     <form id="new_message_form" style="display: none;position: relative;width: fit-content">
+      <textarea type="text" placeholder="پیام خود را اینجا وارد کنید" name="tkmessage"></textarea>
+         <input style="display: none" name="parent_ticket_title" value="{{ ticket_title }}">
+       <button onclick="send_new_message();event.preventDefault();"
+       style="background-color: green;border: none;width: 100px;
+border-radius: 2%;box-shadow: 2px 2px 2px green;color: whitesmoke;position: absolute;bottom: 65%;right: 102%">
+           ارسال پیام
+       </button>
+     <button onclick="event.preventDefault();o_or_c_messageform('close')" style="background-color: red;border: none;
+border-radius: 2%;box-shadow: 2px 2px 2px red;color: whitesmoke;position: absolute;bottom: 15%;right:102%">
+           بستنX
+       </button>
+     <p id="message_error" style="display: none;color:red">
+
+     </p>
+     </form>
+    <button onclick="o_or_c_messageform('open')">
+     ایجاد پیام جدید
+    </button>
+    <br>
+    <br>
+    <div class="messages_container">
+{% for message in messages %}
+<div class="ticket_message">
+شما گفتید:
+<br> {{ message.message }}
+<br> تاریخ:{{ message.date }}
+    </div>
+    {% for reply in message.ticket_message_set.all %}
+        <div class="ticket_message_reply">
+        پشتیبانی در پاسخ شما گفت:
+        <br>
+        {{ reply.message }}
+        <br>
+        {{ reply.date }} تاریخ
+        </div>
+        {% endfor %}
+{% endfor %}
+    </div>
+{% endblock %}
