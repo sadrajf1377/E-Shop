@@ -14,7 +14,5 @@ urlpatterns=[path('admin-index-page',admin_page_index.as_view(),name='admin-inde
 ,path('show_comments',show_comments.as_view(),name='show_comments')
 ,path('confirm_reject_order/<status>',confirm_reject_order.as_view(),name='confirm_reject_order')
 ,path('add_brand_color_category/<model_type>',add_new_category_color_brand_new.as_view(),name='add_brand_color_category_new')
-,path('show_user_tickets/',show_tickets.as_view(),name='show_user_tickets')
-,path('show_ticket_detaails/?ticket_title=<title>',show_ticket_details.as_view(),name='show_ticket_detaails')
-             ,path('answer_ticket',answer_ticket.as_view(),name='answer_ticket')
+
              ]

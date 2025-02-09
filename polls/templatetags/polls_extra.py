@@ -1,7 +1,7 @@
 from django import template
 from user_Module.models import normal_user
 from product_module.models import products
-from user_Module.models import user_ticket
+from ticket_module.models import user_ticket
 register=template.Library()
 current_user:normal_user=None
 
