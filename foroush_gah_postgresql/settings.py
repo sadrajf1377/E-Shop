@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     ,'register_login'
     ,'comments_module'
     ,'order_module'
-    ,'admin_module'
+    ,'admin_module',
     'notification_module',
     'ticket_module'
 

@@ -7,7 +7,7 @@ from django.views import View
 from django.views.generic import ListView
 
 from custom_decorators import login_required_api, user_is_admin
-from ticket_module.models import user_ticket, ticket_message
+from .models import user_ticket, ticket_message
 
 
 # Create your views here.

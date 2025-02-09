@@ -29,8 +29,10 @@ urlpatterns = [
     ,path('register_login',include('register_login.urls'))
     ,path('users',include('user_Module.urls'))
     ,path('comments',include('comments_module.urls'))
-    ,path('order',include('order_module.urls'))
-    ,path('admin-module',include('admin_module.urls'))
+    ,path('order',include('order_module.urls')),
+    path('admin_module',include('admin_module.urls')),
+    path('ticket_module',include('ticket_module.urls')),
+    path('notification_module',include('notification_module.urls'))
 
 ]
 urlpatterns+=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
