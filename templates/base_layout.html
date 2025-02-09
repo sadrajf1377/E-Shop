@@ -431,7 +431,7 @@
 
                      $.ajax(
                          {
-                             url:`{% url 'show_user_notficitations'  %}`,
+                             url:`address`,
                              type:'GET',
                              data:{'pagenumber':page_number}
                          }
@@ -451,7 +451,7 @@
                                 'opacity:100%;transition:opacity 1s ease';
                                 delete_btn.onclick=function () {
 
-                                    $.get('{% url 'mark_notif_as_read' %}'+'?notifid='+message.notif_id).
+                                    $.get('address'+'?notifid='+message.notif_id).
                                         then(res=>{
                                             if(res.status==='succeed')
                                             {

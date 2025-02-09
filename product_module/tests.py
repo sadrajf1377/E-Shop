@@ -10,7 +10,7 @@ class Test_Views(TestCase):
         self.invalid_product_details_view=self.client.get(reverse('show-product-details',args=['-1'])).status_code
         self.product=products(title='product',url='test')
         self.product.save()
-        self.user=normal_user(username='admin')
+        self.user=normal_user(username='admin',email='email@email.com')
         self.user.set_password('1234')
         self.user.save()
         self.client.login(username=self.user.username,password='1234')
