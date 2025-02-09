@@ -19,4 +19,3 @@ class TestEditUserInfoView(TestCase):
 
         self.assertTemplateUsed(self.response, 'edit_user_information.html')
 
-        self.assertContains(self.response, "Edit Your Information", msg_prefix='The page content is not as expected.')

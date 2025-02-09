@@ -26,10 +26,10 @@ class normal_user(AbstractUser):
     ,('partially_banned','مسدودیت ناقص')
                   ,('fully_banned','مسدودیت کامل'))
     user_status=models.CharField(max_length=20,default='normal',verbose_name='وضعیت کاربر',choices=status_modes)
-    def save(self,*args,**kwargs):
+    def save(self,*args):
         if self.admin_level != None and self.user_type=='noraml':
             raise ValidationError('normal users cannot have admin level')
-        super().save(*args,**kwargs)
+        super().save(*args)
 
     def notfis_count(self):
         count=self.user_notifications_set.filter(is_read=False).count()
