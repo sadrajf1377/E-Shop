@@ -19,10 +19,10 @@ def user_is_admin(admin_lvl):
   def Wrapper(func):
           def To_do(*args, **kwargs):
               request: HttpRequest = args[0]
-
+              required_level=request.user.admin_level or -1
               if not request.user.is_authenticated:
                   return redirect(reverse('login-user'))
-              if request.user.admin_level <= admin_lvl and request.user.user_type == 'admin':
+              if  required_level <= admin_lvl and request.user.user_type == 'admin':
                   return func(*args,**kwargs)
               else:
                   return render(request,'404.html',context={})
