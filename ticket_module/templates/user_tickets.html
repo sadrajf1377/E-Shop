@@ -29,7 +29,7 @@
          $.ajax(
              {
                  method:'POST',
-                 url:'test',
+                 url:'{% url 'create_new_tickets' %}',
                  data:form_data,
                  contentType:false,
                  processData:false,

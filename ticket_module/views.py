@@ -16,7 +16,7 @@ class show_user_tickects(ListView):
     template_name = 'user_tickets.html'
     model = user_ticket
     context_object_name = 'tickets'
-    paginate_by = 2
+    paginate_by = 4
     ordering = '-creation_date'
     def get_queryset(self):
         used_id=self.request.user.id
