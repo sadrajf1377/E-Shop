@@ -50,11 +50,11 @@ class new_ticket(View):
     def post(self,request):
         title=request.POST.get('ticket_title')
         if title =='' or title == None:
-            return JsonResponse({'status':'fail','error_message':'عنوان تیکت نمی تواند خالی باشد'})
+            return JsonResponse({'status':'fail','error_message':'عنوان تیکت نمی تواند خالی باشد'},status=400)
 
         user_id=request.user.id
         user_ticket.objects.create(title=title,created_by_id=user_id).save()
-        return JsonResponse({'status':'success','url':reverse('my_tickets')})
+        return JsonResponse({'status':'success','url':reverse('my_tickets')},status=201)
 
 @method_decorator(login_required_api,name='dispatch')
 class create_new_ticket_message(View):
@@ -68,13 +68,13 @@ class create_new_ticket_message(View):
             par_id=user_ticket.objects.get(title=parent_ticket_title,created_by_id=request.user.id).id
             ticket_message.objects.create(message=message,parent_ticket_id=par_id,parent_message_id=None).save()
 
-            return JsonResponse({'status':'success'})
+            return JsonResponse({'status':'success'},status=201)
           else:
-              print('dd')
-              return JsonResponse({'status': 'fail','e_message':'بخش پیام نمی تواند خالی باشد'})
+
+              return JsonResponse({'status': 'fail','e_message':'بخش پیام نمی تواند خالی باشد'},status=400)
         except Exception as e:
             print(f'{e}')
-            return JsonResponse({'status':'fail','e_message':'مشکلی در ارسال پیام به وجود آمد!لطفا دورباره تلاش کنید'})
+            return JsonResponse({'status':'fail','e_message':'مشکلی در ارسال پیام به وجود آمد!لطفا دورباره تلاش کنید'},status=500)
 
 
 @method_decorator(user_is_admin(admin_lvl=3),name='dispatch')

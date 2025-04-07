@@ -160,7 +160,7 @@ EMAIL_PORT=587
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-
+DEFAULT_FILE_STORAGE='thumbs'
 STATIC_URL = '/static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 # Default primary key field type

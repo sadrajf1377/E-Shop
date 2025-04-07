@@ -22,40 +22,8 @@
        cursor: pointer; background-color: wheat;
      }
     </style>
-    <script>
-     function create_new_ticket(form)
-     {
-         const form_data=new FormData(form);
-         $.ajax(
-             {
-                 method:'POST',
-                 url:'{% url 'create_new_tickets' %}',
-                 data:form_data,
-                 contentType:false,
-                 processData:false,
-                 headers:{'X-CSRFToken':'{{ csrf_token }}'},
-                 success:function ()
-                 {
+    {% csrf_token %}
 
-                 },
-                 error:function (error) {
-                     alert(`${error}`)
-                 }
-             }
-         ).then(res=>{
-             console.log(res);
-             if(res.status==='fail'){
-                const error_element=document.getElementById('ticket_error'); error_element.innerText=res.error_message;
-                form.querySelector('input').style.border='1px solid red';
-                error_element.style.display='block';
-             }
-             else
-             {
-                 window.open(res.url,'_self');
-             }
-         })
-     }
-    </script>
      <button onclick="document.getElementById('my_form').style.display='block';"
             style="background-color: mediumseagreen;border: none
      ;border-radius: 2%;color: whitesmoke;text-shadow: 1px 1px 1px whitesmoke">
@@ -72,7 +40,7 @@
 
        <div style="float: right;display: flex;flex-direction: column;margin-right: 5px">
         <button style="background-color: darkseagreen;border: none;
-     ;border-radius: 2%;color: whitesmoke;text-shadow: 1px 1px 1px whitesmoke"  onclick="create_new_ticket(this.parentElement);event.preventDefault()">
+     ;border-radius: 2%;color: whitesmoke;text-shadow: 1px 1px 1px whitesmoke"  onclick="event.preventDefault();create_new_ticket(this.parentElement.parentElement);">
                ثبت تیکت
         </button>
     <button style="background-color: red;border: none;
@@ -103,4 +71,35 @@
         {% endfor %}
     </div>
     </div>
+    <script>
+    const csrf_token=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+     function create_new_ticket(form)
+     {
+         console.log(form)
+         const form_data=new FormData(form);
+
+         $.ajax(
+             {
+                 method:'POST',
+                 url:'{% url 'create_new_tickets' %}',
+                 data:form_data,
+                 contentType:false,
+                 processData:false,
+                 headers:{'X-CSRFToken':csrf_token}
+
+             }
+         ).then(res=>{
+             console.log(res);
+             if(res.status==='fail'){
+                const error_element=document.getElementById('ticket_error'); error_element.innerText=res.error_message;
+                form.querySelector('input').style.border='1px solid red';
+                error_element.style.display='block';
+             }
+             else
+             {
+                 window.open(res.url,'_self');
+             }
+         })
+     }
+    </script>
 {% endblock %}
