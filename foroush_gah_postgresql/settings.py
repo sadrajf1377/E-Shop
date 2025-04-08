@@ -140,15 +140,9 @@ USE_TZ = True
 
 
 LANGUAGE_CODE = 'en'
-LANGUAGES = [
-    ('en', 'English'),
-    ('fa', 'Persian'),
-]
 
-# مسیر فایل‌های ترجمه
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',  # یا مسیر دیگری که ترجمه‌ها ذخیره می‌شوند
-]
+
+
 
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
