@@ -131,14 +131,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-<<<<<<< HEAD
+
 
 TIME_ZONE = 'UTC'
-=======
+
 LANGUAGE_CODE = 'fa'
 
 TIME_ZONE = 'Tehran'
->>>>>>> client_side
+
 
 USE_I18N = True
 
@@ -153,11 +153,11 @@ LANGUAGE_CODE = 'en'
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
-<<<<<<< HEAD
+
 EMAIL_HOST_USER='your gmail address'
-=======
+
 EMAIL_HOST_USER='your email address'
->>>>>>> client_side
+
 EMAIL_HOST_PASSWORD='your email password'
 EMAIL_PORT=587
 
