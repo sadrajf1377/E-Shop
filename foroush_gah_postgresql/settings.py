@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY='WSG5-VSGF-VDSW-GFL4'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -131,8 +131,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
+<<<<<<< HEAD
 
 TIME_ZONE = 'UTC'
+=======
+LANGUAGE_CODE = 'fa'
+
+TIME_ZONE = 'Tehran'
+>>>>>>> client_side
 
 USE_I18N = True
 
@@ -144,12 +150,7 @@ LANGUAGE_CODE = 'en'
 
 
 
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS=True
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='your gmail address'
-EMAIL_HOST_PASSWORD='your email password'
-EMAIL_PORT=587
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
