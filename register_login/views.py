@@ -1,5 +1,6 @@
 from django.contrib.auth import login, logout
 from django.contrib.messages.storage import session
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -8,9 +9,9 @@ from django.utils.crypto import get_random_string
 from django.views import View
 
 import polls.templatetags.polls_extra
-from .forms import register_form
+from .forms import register_form,login_form
 from user_Module.models import normal_user
-from utils.email_services import send_email
+from .tasks import send_email_to_user
 # Create your views here.
 from user_Module.models import user_false_password_attemp
 
@@ -19,40 +20,26 @@ class register_user(View):
     def post(self,request:HttpRequest):
         rg_form=register_form(request.POST)
         if rg_form.is_valid():
+            try:
+                with transaction.atomic():
+                    act_code=get_random_string(length=16)
+                    user:normal_user=rg_form.instance
+                    user.activation_code=act_code
+                    user.set_password(rg_form.cleaned_data.get('password'))
+                    user.save()
+                    send_email_to_user.delay(template_name='activate_account.html',subject='فعالسازی حساب کاربری',to=user.email,context={'code':act_code})
+                    return render(request,'register_done.html',status=201)
+            except Exception as e:
+                rg_form.add_error('password_repeat','مشکلی در ثبت نام شما به وجود آمد!لطفا مجدد تلاش بفرمایید')
+                return render(request, 'register_page.html', {'register_form':rg_form},status=500)
 
-            passwords_matches:bool=rg_form.cleaned_data.get('password')==rg_form.cleaned_data.get('password_repeat')
-            email_exists:bool=normal_user.objects.filter(email__iexact=rg_form.cleaned_data.get('email')).first()
-
-            activate_code = get_random_string(72)
-            special_character=['!','@','#','%','^','_','-','&']
-            password=rg_form.cleaned_data.get('password')
-            password_is_strong=passwords_matches and any(x.isupper() for x in password) and any(x in special_character for x in password)
-            email_valid= send_email(template_name='activate_account.html',to=rg_form.cleaned_data.get('email'),subject='فعال سازی اکانت',contex={'code':activate_code}) ==1
-            if passwords_matches and not email_exists and email_valid and password_is_strong:
-
-                new_user:normal_user=normal_user(email=rg_form.cleaned_data.get('email'),activation_code=activate_code
-                                                 ,username=rg_form.cleaned_data.get('email'),is_active=False)
-
-                new_user.set_password(rg_form.cleaned_data.get('password'))
-                new_user.save()
-                return render(request,'register_done.html')
-            else:
-                if not passwords_matches:
-                 rg_form.add_error('password_repeat','تکرار پسوورد اشتباه است')
-                if email_exists:
-                 rg_form.add_error('email', 'این ایمیل قبلا ثبت شده است')
-                if not email_valid:
-                 rg_form.add_error('email', 'ایمیل وارد شده معتبر نمی باشد')
-                if not password_is_strong:
-                 rg_form.add_error('password', 'رمز باید شامل یک حرف بزرگ و یک کاراکتر خاص مثل @،#،- ویا _ باشد')
-                return render(request, 'register_page.html', {'register_form':rg_form})
         else:
-            return self.get(request)
+            return render(request, 'register_page.html', {'register_form':rg_form},status=401)
 
     def get(self,request:HttpRequest):
         contex={'register_form':register_form(None)}
 
-        return render(request, 'register_page.html', contex)
+        return render(request, 'register_page.html', contex,status=200)
 
 def activate_user(request,activate_code):
     user_custom=normal_user.objects.all().get(activation_code=activate_code)
@@ -64,39 +51,49 @@ def activate_user(request,activate_code):
 
 class login_user(View):
     def post(self,request:HttpRequest):
-        email_or_username=request.POST.get('email_username')
-        email_check = normal_user.objects.all().filter(Q(username=email_or_username)|Q(email=email_or_username)).first()
-        if email_check:
-            user_is_fine=email_check.user_status!='partially_banned'
-            if user_is_fine:
-             email_check.delete_out_dated_attemps()
-             check_password=email_check.check_password(request.POST.get('password'))
-             if check_password:
-                email_check.delete_all_false_attemps()
-                login(request,email_check)
-                return redirect(reverse('load_index_Page'))
-             else:
-                new_attemp = user_false_password_attemp(user=email_check)
-                new_attemp.save()
-                if email_check.user_false_password_attemp_set.all().count() >= 15:
-                    return ban_user(email_check)
-                else:
-                    contex = {'error': 'ایمیل یا کلمه عبور اشتباه است!'}
-                    return render(request, 'login_page.html', contex)
-            else:
-                return HttpResponse('اکانت شما به طور موقت مسدود شده است،برای تغییر پسوورد خود به ایمیل خود مراجعه نمایید')
+        frm=login_form(request.POST)
+        if frm.is_valid():
+            try:
+                username_email=frm.cleaned_data.get('username_email')
+                user=normal_user.objects.get(Q(username=username_email)|Q(email=username_email))
+                password=frm.cleaned_data.get('password')
+                if user.user_status!='partially_banned':
+                    if user.check_password(password):
+                        user.delete_all_false_attemps()
+                        login(request, user)
+                        return redirect(reverse('load_index_Page'))
+                    else:
+                        new_attemp = user_false_password_attemp(user=user)
+                        new_attemp.save()
+                        if user.user_false_password_attemp_set.all().count() >= 15:
+                            return ban_user(user)
 
+                        frm.add_error('password', 'کاربری با این مشخصات پیدا نشد')
+                        return render(request, 'login_page.html', context={'login_form': frm}, status=404)
+                else:
+
+                    frm.add_error('password','اکانت شما به طور موقت مسدود شده است،برای تغییر پسوورد خود به ایمیل خود مراجعه نمایید')
+                    return render(request, 'login_page.html', context={'login_form': frm}, status=400)
+
+
+            except Exception as e:
+                if isinstance(e,normal_user.DoesNotExist):
+                    frm.add_error('password','کاربری با این مشخصات پیدا نشد')
+                    return render(request,'login_page.html',context={'login_form':frm},status=404)
+                else:
+                    frm.add_error('password','مشکلی در احراز هویت شما به وجود آمد!لطفا مجدد تلاش بفرمایید')
+                    return render(request, 'login_page.html', context={'login_form': frm}, status=500)
         else:
-            contex = {'error': 'ایمیل یا کلمه عبور اشتباه است!'}
-            return render(request, 'login_page.html', contex)
+            return render(request, 'login_page.html', context={'login_form': frm}, status=401)
     def get(self,request:HttpRequest):
-        return render(request,'login_page.html')
+        frm=login_form()
+        return render(request,'login_page.html',context={'login_form':frm},status=200)
 def ban_user(user):
     user.user_status = 'partially_banned'
     reset_code = get_random_string(72)
     user.reset_password_code = reset_code
     user.save()
-    send_email(template_name='redirect_to_reste_password.html', to=user.email, subject='تغییر رمز عبور',
+    send_email_to_user.delay(template_name='redirect_to_reste_password.html', to=user.email, subject='تغییر رمز عبور',
                contex={'reset_code': reset_code})
     return HttpResponse('اکانت شما به طور موقت مسدود شده است،برای تغییر پسوورد خود به ایمیل خود مراجعه نمایید')
 

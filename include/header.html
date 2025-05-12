@@ -152,13 +152,7 @@
                   <!--  ==========  -->
                   <!--  = Search form =  -->
                   <!--  ==========  -->
-                  <form class="navbar-form pull-right" action="{% url 'show_filtered_products' %}" method="post">
-                      {% csrf_token %}
-                      <input type="text" class="span1" name="pr_name" id="navSearchInput" value="">
-                      <input type="text" name="cats" style="display: none" value="" readonly>
-                      <input type="text" name="brs" style="display: none" value="" readonly>
-                      <button type="submit"><span class="icon-search"></span></button>
-                  </form>
+
                 </div><!-- /.nav-collapse -->
             </div>
 

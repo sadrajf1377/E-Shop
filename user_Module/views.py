@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import UpdateView, ListView, DetailView
 from .models import normal_user
-from utils.email_services import send_email
+from register_login.tasks import send_email_to_user
 # Create your views here.
 from product_module.models import products
 from admin_module.models import debts
@@ -49,7 +49,7 @@ class ask_for_password_reset(View):
          code=get_random_string(72)
          user.reset_password_code=code
          user.save()
-         sent_email=send_email(template_name= 'redirect_to_reste_password.html',to=request.POST.get('email'),subject='تغییر رمز عبور',contex={'reset_code':code})
+         sent_email=send_email_to_user.delay(template_name= 'redirect_to_reste_password.html',to=request.POST.get('email'),subject='تغییر رمز عبور',contex={'reset_code':code})
          if sent_email:
              return render(request, 'ask_for_password_reset.html', {'asked': True})
          else:

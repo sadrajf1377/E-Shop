@@ -1,16 +1,13 @@
-FROM python:3.9-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+FROM python:3.11.4-alpine
 
 WORKDIR /app
 
-COPY requirements.txt .
+ENV PYTHONWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1
+ENV PATH=".PY/BIN/:$PATH"
 
-RUN pip install   --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip
 
-COPY . .
+COPY . /app
 
-RUN chmod +x manage.py
-EXPOSE 8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN pip install -r requirements.txt

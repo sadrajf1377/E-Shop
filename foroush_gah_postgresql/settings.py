@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY='WSG5-VSGF-VDSW-GFL4'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -54,7 +54,9 @@ INSTALLED_APPS = [
     ,'order_module'
     ,'admin_module',
     'notification_module',
-    'ticket_module'
+    'ticket_module',
+    'celery',
+    'redis'
 
 
 ]
@@ -100,6 +102,18 @@ MEDIA_ROOT=os.path.join(BASE_DIR, 'medias')
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1'
+
+    }
+}
+
+
+
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -137,7 +151,7 @@ TIME_ZONE = 'UTC'
 
 LANGUAGE_CODE = 'fa'
 
-TIME_ZONE = 'Tehran'
+
 
 
 USE_I18N = True
@@ -149,25 +163,32 @@ LANGUAGE_CODE = 'en'
 
 
 
+##########################
 
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
-
-EMAIL_HOST_USER='your gmail address'
-
-EMAIL_HOST_USER='your email address'
-
-EMAIL_HOST_PASSWORD='your email password'
+EMAIL_HOST_USER='your email password'
+EMAIL_HOST_PASSWORD='your password'
 EMAIL_PORT=587
 
+
+
+
+
+###################################
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-DEFAULT_FILE_STORAGE='thumbs'
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FILE_STORAGE='storage'
+
+CELERY_BROKER_URL=os.environ.get('CELERY_BROKER','redis://redis:6379/0')
+CELERY_BACKEND_URL=os.environ.get('CELERY_BACKEND','redis://redis:6379/0')

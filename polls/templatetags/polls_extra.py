@@ -44,3 +44,6 @@ def unasnwered_tickets_count(v):
     unread_tickets=len(set(user_ticket.objects.filter(ticket_message__is_answered=False).values_list('id')))
     return unread_tickets
 
+@register.filter
+def get_iterable(value):
+    return range(0,value,1)

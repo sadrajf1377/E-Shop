@@ -97,7 +97,11 @@ class products(models.Model):
     def product_images(self):
         return self.images_set.all()
     def thumbnail_photo(self):
-        thumbnail_photo=self.images_set.all().first().picture
+        if any(self.images_set.all()):
+            thumbnail_photo = self.images_set.all().first().picture
+        else:
+            thumbnail_photo=''
+
         return thumbnail_photo
 
 
@@ -148,3 +152,17 @@ class article_picture(models.Model):
     class Meta:
         verbose_name = 'تصویر مقاله'
         verbose_name_plural = 'تصاویر مقالات'
+
+
+def review_score_validator(score):
+    if not(score<=5 and score>=0):
+        raise ValidationError('امتیاز باید مقداری بین صفر و پنج داشته باشد')
+
+class product_review(models.Model):
+    author=models.ForeignKey(normal_user,on_delete=models.CASCADE,null=False,blank=False,error_messages={'null':'این فیلد نمی تواند خالی باشد'},related_name='user_reviews'
+                             ,verbose_name='کاربر امتیاز دهنده')
+    product=models.ForeignKey(products,on_delete=models.CASCADE,null=False,blank=False,related_name='reviews',db_index=True,verbose_name='محصول')
+    score=models.FloatField(default=1,validators=[review_score_validator],verbose_name='امتیاز به کالا')
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=['product','author'],name='product author uniquness',violation_error_message='این کاربر قبلا به این کالا امتیاز داده است'
+                                             )]

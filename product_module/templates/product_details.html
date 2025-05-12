@@ -16,6 +16,13 @@
      box-shadow: 5px 5px 5px lightgreen;border-radius: 10%;text-shadow:lightgreen;list-style: none;
      height: fit-content;width: fit-content;background-color: lightgreen;color: green;font-family:'B Nazanin';
  }
+ form#rating_form
+ {
+     position: fixed;height: fit-content;width: 40vw;left: 30vw;font-size: calc(3vh);
+     background-color: lightgreen;color: whitesmoke;border: none;border-radius: 1.5%;scale: none;
+     transition: transform 0.5s ease;text-align: center;z-index: 99 !important;border-radius: 1.5%;
+
+ }
 
 </style>
 
@@ -99,6 +106,7 @@
 
 
     }
+
     function add_product_to_wish_list(element)
     {
          $.get('{% url 'add_user_to_wishlist' %}'+'?user-id='+'{{ user.id }}'+'&product-title='+'{{ product.title }}').then(res=>
@@ -113,7 +121,28 @@
          });
     }
 
+
 </script>
+    {%  if can_review %}
+    <form id="rating_form" style="scale: 0">
+    <br>
+    به این محصول ازیک تا پنج چه امتیازی میدهید؟
+
+     <p class="center-align stars" style="margin-top: 2vh">
+                    	                <span class="icon-star stars"  onmouseenter="calculate_stars(1)"></span>
+                    	                <span class="icon-star stars"  onmouseenter="calculate_stars(2)"></span>
+                    	                <span class="icon-star stars"  onmouseenter="calculate_stars(3)"></span>
+                    	                <span class="icon-star stars"  onmouseenter="calculate_stars(4)"></span>
+                                        <span class="icon-star stars"  onmouseenter="calculate_stars(5)"></span>
+                    	            </p>
+    <button onclick="event.preventDefault();submit_rating()">
+        ثبت امتیاز
+    </button>
+    <button onclick="event.preventDefault();open_close_rate_form()">
+        بستن
+    </button>
+    </form>
+    {% endif %}
     <!--  ==========  -->
     <!--  = Main container =  -->
     <!--  ==========  -->
@@ -181,6 +210,11 @@
                                         </span>
                                         {% endif %}
                                 {% endif %}
+                            {%  if  can_review %}
+                              <span class="btn" style="background-color: orangered" onclick="open_close_rate_form()">
+                                   امتیاز دهی به این محصول
+                               </span>
+                            {% endif %}
 {#                                <span class="btn btn-warning">تماس بگیرید</span>#}
 
                             </span>
@@ -195,6 +229,7 @@
                         <!--  ==========  -->
                     <script>
                         let amount=1;
+
                         function add_to_amount(value)
                         {
                             amount+=value;
@@ -204,6 +239,40 @@
 
 
                         }
+                        {% if can_review %}
+        const rate_form=document.getElementById('rating_form')
+     function open_close_rate_form()
+     {
+         console.log('open reate form was called',typeof(rate_form.style.scale))
+          const is_open=rate_form.style.scale!='0'
+         rate_form.style.scale=is_open?'0':'1';
+
+     }
+     function calculate_stars(index)
+     {
+         const stars=rate_form.getElementsByClassName('center-align stars')[0].querySelectorAll('span');
+         for(let i=4;i>=0;i--)
+         {
+             stars[i].className=i+1>=index?'icon-star stars-clr':'icon-star stars';
+         }
+     }
+     async function submit_rating()
+     {
+         let rating=0;
+         const data=new FormData(); rate_form.getElementsByClassName('center-align stars')[0].querySelectorAll('span').forEach((el)=>{
+             if(el.className=='icon-star stars-clr')
+                 rating++;
+
+     });
+         data.append('review_score',rating);
+
+             console.log(rating)
+         await fetch('{% url 'submit_review' product.id %}',{method:'POST',headers:{'X-csrftoken':document.getElementsByName('csrfmiddlewaretoken')[0].value},body:data}).then(res=>res.json()).then(res=>{
+             window.open(window.location,'_self')
+
+         }).catch(res=>{alert(res.message)})
+     }
+    {% endif %}
                     </script>
                     {% if product.get_avalible_colors.count > 0 and user.is_authenticated %}
                         <form action="#" class="form form-inline clearfix">

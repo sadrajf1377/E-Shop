@@ -7,28 +7,22 @@
 <div class="container" style="background-color: lightgrey;box-shadow: 10px 10px 10px lightgrey;border: 0.5px solid grey;width: fit-content">
 <form method="post" action="{% url 'login-user' %}" style="">
 {% csrf_token %}
-    <p style="width: fit-content;margin-right: 1%">
-ایمیل یا نام کاربری:
+    {% for field in login_form %}
+    {{ field.label }}
+        <br>
+        {{ field }}
+        <p style="color: red">
+        {% for error in field.errors %}
+            {{ error }}
+            {% endfor %}
         </p>
 
-<input type="text" name="email_username" label="ایمیل" value="" style="width: 70%;margin-right: 10%">
-
-    <p style="width: fit-content;margin-right: 1%">
-    پسوورد:
-        </p>
-
-<input type="password" name="password" label="کلمه عبور" value="" style="width: 70%;margin-right: 10%">
-    <br>
-<b style="color: red;margin-left:80px">
-    {{ error }}
-    </b>
-    <br>
+    {% endfor %}
 
 
 <button type="submit" style="background-color: #a0cc4b;color: white;height:50px;width: 100px;border: white 2px solid;margin-right:26%">
     ورود به اکانت
 </button>
-<br>
 
 
 </form>

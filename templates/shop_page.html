@@ -34,8 +34,7 @@
                                 <div class="accordion-inner">
                                     {% for cat in categories %}
 
-                                    <a href="#" id="{{ cat.id }}" class="selectable
-                               {% if cat.id|check_if_in:selected_cats %} selected {% endif %}"><i class="box"></i>{{ cat.title }}</a>
+                                    <a href="#" id="{{ cat.id }}" class="selectable" onclick="add_remove_filter(this.id,'category')"><i class="box"></i>{{ cat.title }}</a>
                                     {% endfor %}
 
                                 </div>
@@ -72,13 +71,10 @@
                             </div>
                             <div id="filterThree" class="accordion-body collapse">
                                 <div class="accordion-inner">
-                                    <a href="#" data-target="red" data-type="color" class="selectable detailed"><i class="box"></i> قرمز</a>
-<a href="#" data-target="green" data-type="color" class="selectable detailed"><i class="box"></i> سبز</a>
-<a href="#" data-target="blue" data-type="color" class="selectable detailed"><i class="box"></i> آبی</a>
-<a href="#" data-target="pink" data-type="color" class="selectable detailed"><i class="box"></i> صورتی</a>
-<a href="#" data-target="purple" data-type="color" class="selectable detailed"><i class="box"></i> بنفش</a>
-<a href="#" data-target="orange" data-type="color" class="selectable detailed"><i class="box"></i> نارنجی</a>
+                                    {% for color in colors %}
 
+                                    <a href="#" data-target="red" data-type="color" class="selectable detailed" onclick="add_remove_filter(this.id,'color')"><i class="box"></i> </a>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div> <!-- /color filter -->
@@ -94,22 +90,54 @@
                                 <div class="accordion-inner">
                                 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
                                 <script>
-
+                                    const colors=[];
+                                    const brands=[];
+                                    const categories=[];
+                                    function add_remove_filter(id,type)
+                                    {
+                                        switch (type)
+                                        {
+                                            case 'category':{
+                                                if(categories.includes(id)){
+                                                    const index=categories.indexOf(id);
+                                                    categories.splice(index,1);
+                                                }
+                                                else{
+                                                    categories.push(id);
+                                                }
+                                            }break;
+                                            case 'color':{
+                                                    if(colors.includes(id)){
+                                                    const index=colors.indexOf(id);
+                                                    colors.splice(index,1);
+                                                }
+                                                else{
+                                                    colors.push(id);
+                                                }
+                                            }break;
+                                            case 'brand':{
+                                                  if(brands.includes(id)){
+                                                    const index=brands.indexOf(id);
+                                                    brands.splice(index,1);
+                                                }
+                                                else{
+                                                    brands.push(id);
+                                                }
+                                            }break;
+                                        }
+                                        console.log(brands,categories,colors,id)
+                                    }
                                     function set_filters()
                                     {
 
-                                      var cats_doc=document.getElementById('cats');
-                                      var brs_doc=document.getElementById('brs');
-                                      const cats_input=document.getElementsByClassName('selectable selected');
-                                      const brs_input=document.getElementsByClassName('selectable detailed selected');
-                                      cats_doc.value='';brs_doc.value='';
-                                      for(const cat of cats_input){cats_doc.value+=cat.id.toString()+','; }
-                                      for(const br of brs_input){brs_doc.value+=br.id.toString()+','; }
-
+                                      const cats=categories.length!=0?categories.toString().replace('[','').replace(']',''):'__all__';
+                                      const brs=brands.length!=0?brands.toString().replace('[','').replace(']',''):'__all__';
+                                      const clrs=colors.length!=0?colors.toString().replace('[','').replace(']',''):'__all__';
+                                        window.open('http://127.0.0.1:8000/'+'show_filtered_products'+`/${clrs}/${brs}/${cats}`)
                                     }
                                 </script>
                                     {% for brand in brands %}
-                                    <a href="#"  class="selectable detailed" id='{{ brand.id }}'><i class="box" ></i> {{ brand.title }}</a>
+                                    <a href="#"  class="selectable detailed" id='{{ brand.id }}' onclick="add_remove_filter(this.id,'brand')"><i class="box" ></i> {{ brand.title }}</a>
                                     {% endfor %}
 
                                 </div>
@@ -117,13 +145,11 @@
                         </div> <!-- /brand filter -->
 
                         <a href="#" class="remove-filter" id="removeFilters"><span class="icon-ban-circle"></span> حذف همه فیلتر ها</a>
-                    <form method="post" action="{% url 'show_filtered_products' %}">
-                        {% csrf_token %}
-                        <input style="display: none" name="brs" type="text" id="brs" value="">
-                        <input style="display: none" name="cats" type="text" id="cats" value="">
-                        <input style="display: none" name="pr_name" type="text"  value="">
-                        <button  onclick="set_filters()">مال فیلتر</button>
-                        </form>
+
+
+
+                        <button  onclick="set_filters();event.preventDefault()">اعمال فیلتر</button>
+
                     </div>
                 </aside> <!-- /sidebar -->
 
@@ -171,7 +197,7 @@
 
                     	            <div class="product-img">
                     	                <div class="picture">
-                                            {% thumbnail product.thumbnail_photo "450x450" crop="center"  as thumbn  %}
+                                            {% thumbnail product.thumb "450x450" crop="center"  as thumbn  %}
                     	                    <img width="540" height="374" alt="" src="{{thumbn.url}}" />
                                             {%endthumbnail%}
                     	                    <div class="img-overlay">

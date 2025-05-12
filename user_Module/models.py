@@ -10,7 +10,7 @@ choices=(('mashhad','مشهد'),('tehran','تهران'),('shiraz','شیراز'),
 class normal_user(AbstractUser):
     activation_code=models.CharField(max_length=100,verbose_name='کد فعال سازی',null=True,blank=True)
     phone_number=models.CharField(max_length=20,verbose_name='شماره موبایل',null=True,blank=True)
-    email = models.EmailField(max_length=20,verbose_name='ایمیل',null=True,blank=True)
+    email = models.EmailField(verbose_name='ایمیل',null=True,blank=True)
     address=models.TextField(max_length=300,verbose_name='آدرس محل سکونت',null=True,blank=True)
     first_name = models.CharField(max_length=300, verbose_name='نام', null=True, blank=True)
     last_name =models.CharField(max_length=300, verbose_name='نام خانوادگی', null=True, blank=True)

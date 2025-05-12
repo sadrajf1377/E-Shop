@@ -1,7 +1,7 @@
 {% extends 'base_layout.html' %}
 {% load polls_extra %}
 {% load thumbnail %}
-{% block content_title %} محبوب ترین محصولات {% endblock %}
+{% block content_title %} پرفروش ترین محصولات {% endblock %}
 {% block title %}
 
     صفحه اصلی {% endblock %}
@@ -14,7 +14,7 @@
                     <div class="slide" style="position: relative;right: 0%" id="slide_div">
                         <div class="row">
 
-{% for product in most_popular_products %}
+{% for product in most_sold_products %}
 
 <div class="span3">
     	            	    <div class="product">
@@ -35,6 +35,7 @@
     	            	        </div>
     	            	        <p class="desc">{{ product.main_description }}</p>
     	            	        <p class="center-align stars">
+
                     	            <span class="icon-star stars-clr"></span>
                     	            <span class="icon-star stars-clr"></span>
                     	            <span class="icon-star stars-clr"></span>

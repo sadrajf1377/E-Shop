@@ -1,0 +1,40 @@
+
+services:
+  django:
+    container_name: 'foroush_gah_postgresql'
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=WSG5-VSGF-VDSW-GFL4
+    depends_on:
+      - redis
+      - django_celery
+
+
+  redis:
+    image: redis:7.0.11-alpine
+
+  django_celery:
+    container_name: 'django_celery'
+    command: celery -A foroush_gah_postgresql worker --loglevel=info
+
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+
+    environment:
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DEBUG=True
+      - SECRET_KEY=WSG5-VSGF-VDSW-GFL4
+    depends_on:
+      - redis

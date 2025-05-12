@@ -18,8 +18,6 @@ class order(models.Model):
     status=models.CharField(verbose_name='وضعیت سفارش',max_length=100,default=choices[2],choices=choices)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-      if self.is_paid and not self.order_number:
-         self.order_number=str(self.id)+self.user.username+str(self.order_detail_set.count())+str(self.user.id)
       print('saved')
       super().save()
     class Meta:
